@@ -1,17 +1,15 @@
 package com.jw.cool.xuanmusicplauer.fragments;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jw.cool.xuanmusicplauer.R;
 import com.jw.cool.xuanmusicplauer.coreservice.MusicRetriever;
@@ -27,6 +25,25 @@ public class SongListFragment extends android.support.v4.app.Fragment
     List<MusicRetriever.Item> itemList = new ArrayList<MusicRetriever.Item>();
 	Adapter adapter;
     MusicRetriever mRetriever;
+//    private MyOnItemClickListener myOnItemClickListener;
+//    private MyOnItemLongClickListener myOnItemLongClickListener;
+//    public interface MyOnItemClickListener{
+//        void onItemClick(View view,int position);
+//    }
+//
+//    public interface MyOnItemLongClickListener{
+//        void onItemLongClick(View view,int position);
+//    }
+    void onItemClick(View view,int position){
+        Toast.makeText(getActivity(), "Click " + position, Toast.LENGTH_LONG).show();
+    }
+
+    void onItemLongClick(View view,int position){
+        Toast.makeText(getActivity(), "longClick " + position, Toast.LENGTH_LONG).show();
+    }
+
+
+
     public static SongListFragment newInstance(Context context,Bundle bundle) {
         SongListFragment newFragment = new SongListFragment();
         newFragment.setArguments(bundle);
@@ -96,6 +113,7 @@ public class SongListFragment extends android.support.v4.app.Fragment
 
         private Context mContext;
 
+
         public SongListAdapter(Context mContext) {
             this.mContext = mContext;
         }
@@ -113,6 +131,7 @@ public class SongListFragment extends android.support.v4.app.Fragment
             final View view = holder.mView;
             TextView textView = (TextView)view.findViewById(R.id.textView);
             textView.setText(itemList.get(position).getDisplayName());
+            holder.position = position;
         }
 
         @Override
@@ -120,13 +139,27 @@ public class SongListFragment extends android.support.v4.app.Fragment
             return itemList.size();
         }
 
-        public  class ViewHolder extends RecyclerView.ViewHolder {
+        public  class ViewHolder extends RecyclerView.ViewHolder
+                implements View.OnClickListener,View.OnLongClickListener {
             public final View mView;
+            public int position;
 
             public ViewHolder(View view) {
                 super(view);
                 mView = view;
+                mView.setOnClickListener(this);
+                mView.setOnLongClickListener(this);
+            }
 
+            @Override
+            public void onClick(View view) {
+                onItemClick(view, position);
+            }
+
+            @Override
+            public boolean onLongClick(View view) {
+                onItemLongClick(view, position);
+                return false;
             }
         }
     }
