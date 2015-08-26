@@ -109,6 +109,10 @@ public class MusicRetriever {
         return mItems.get(mRandom.nextInt(mItems.size()));
     }
 
+    public List<Item> getItems(){
+        return mItems;
+    }
+
     public static class Item {
         long id;
         String artist;

@@ -1,11 +1,7 @@
 package com.jw.cool.xuanmusicplauer.fragments;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,6 +29,8 @@ public class SongListFragment extends android.support.v4.app.Fragment {
         recyclerView = (RecyclerView) inflater.inflate(R.layout.fragment_activity_new, container, false);
         return recyclerView;
     }
+
+
     
     @Override
     public void onStart() {
@@ -44,7 +42,6 @@ public class SongListFragment extends android.support.v4.app.Fragment {
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
-
         adapter = new SongListAdapter(getActivity());
         recyclerView.setAdapter(adapter);
 //        如上述代码：

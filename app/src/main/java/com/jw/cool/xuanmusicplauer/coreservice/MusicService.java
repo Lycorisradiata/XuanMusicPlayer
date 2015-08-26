@@ -42,8 +42,10 @@ import android.widget.Toast;
 
 import com.jw.cool.xuanmusicplauer.MainActivity;
 import com.jw.cool.xuanmusicplauer.R;
+import com.jw.cool.xuanmusicplauer.coreservice.MusicRetriever.Item;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Service that handles media playback. This is the Service through which we perform all the media
@@ -194,6 +196,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         // Create the retriever and start an asynchronous task that will prepare it.
         mRetriever = new MusicRetriever(getContentResolver());
         (new PrepareMusicRetrieverTask(mRetriever,this)).execute();
+
 
         // create the Audio Focus Helper, if the Audio Focus feature is available (SDK 8 or above)
         if (android.os.Build.VERSION.SDK_INT >= 8)
@@ -423,7 +426,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         relaxResources(false); // release everything except MediaPlayer
 
         try {
-            MusicRetriever.Item playingItem;
+            Item playingItem;
             if (manualUrl != null) {
                 // set the source of the media player to a manual URL or path
                 createMediaPlayerIfNeeded();
@@ -431,7 +434,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                 mPlayer.setDataSource(manualUrl);
                 mIsStreaming = manualUrl.startsWith("http:") || manualUrl.startsWith("https:");
 
-                playingItem = new MusicRetriever.Item(0, null, manualUrl, null, 0);
+                playingItem = new Item(0, null, manualUrl, null, 0);
             }
             else {
                 mIsStreaming = false; // playing a locally available song
@@ -535,7 +538,16 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
                 new Intent(getApplicationContext(), MainActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT);
-        mNotification.setLatestEventInfo(getApplicationContext(), "RandomMusicPlayer", text, pi);
+        Notification.Builder builder = new Notification.Builder(getApplicationContext())
+                .setAutoCancel(true)
+                .setContentTitle("RandomMusicPlayer")
+                .setContentText(text)
+                .setContentIntent(pi)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setWhen(System.currentTimeMillis())
+                .setOngoing(true);
+        mNotification=builder.getNotification();
+
         mNotificationManager.notify(NOTIFICATION_ID, mNotification);
     }
 
@@ -544,6 +556,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
      * something the user is actively aware of (such as playing music), and must appear to the
      * user as a notification. That's why we create the notification here.
      */
+
     void setUpAsForeground(String text) {
         PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
                 new Intent(getApplicationContext(), MainActivity.class),
@@ -552,8 +565,21 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         mNotification.tickerText = text;
         mNotification.icon = R.drawable.ic_stat_playing;
         mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-        mNotification.setLatestEventInfo(getApplicationContext(), "RandomMusicPlayer",
-                text, pi);
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            Notification.Builder builder = new Notification.Builder(getApplicationContext())
+                    .setAutoCancel(true)
+                    .setContentTitle("RandomMusicPlayer")
+                    .setContentText(text)
+                    .setContentIntent(pi)
+                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setWhen(System.currentTimeMillis())
+                    .setOngoing(true);
+            mNotification=builder.getNotification();
+//        }else{
+//            mNotification.setLatestEventInfo(getApplicationContext(), "RandomMusicPlayer", text, pi);
+//        }
+
         startForeground(NOTIFICATION_ID, mNotification);
     }
 
@@ -592,6 +618,10 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     }
 
     public void onMusicRetrieverPrepared() {
+        List<Item> itemList = mRetriever.getItems();
+        for (Item item:itemList){
+            Log.i(TAG, "ITEM " + item);
+        }
         // Done retrieving!
         mState = State.Stopped;
 
