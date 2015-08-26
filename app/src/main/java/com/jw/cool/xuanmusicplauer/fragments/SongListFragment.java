@@ -7,14 +7,26 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.jw.cool.xuanmusicplauer.R;
+import com.jw.cool.xuanmusicplauer.coreservice.MusicRetriever;
+import com.jw.cool.xuanmusicplauer.coreservice.PrepareMusicRetrieverTask;
+import com.jw.cool.xuanmusicplauer.coreservice.PrepareMusicRetrieverTask.MusicRetrieverPreparedListener;
 
-public class SongListFragment extends android.support.v4.app.Fragment {
+import java.util.ArrayList;
+import java.util.List;
+
+public class SongListFragment extends android.support.v4.app.Fragment
+        implements MusicRetrieverPreparedListener {
+    final String TAG = "SongListFragment";
+    List<MusicRetriever.Item> itemList = new ArrayList<MusicRetriever.Item>();
 	Adapter adapter;
+    MusicRetriever mRetriever;
     public static SongListFragment newInstance(Context context,Bundle bundle) {
         SongListFragment newFragment = new SongListFragment();
         newFragment.setArguments(bundle);
@@ -44,6 +56,8 @@ public class SongListFragment extends android.support.v4.app.Fragment {
         recyclerView.setLayoutManager(layoutManager);
         adapter = new SongListAdapter(getActivity());
         recyclerView.setAdapter(adapter);
+        mRetriever = new MusicRetriever(getActivity().getContentResolver());
+        (new PrepareMusicRetrieverTask(mRetriever,this)).execute();
 //        如上述代码：
 //
 //    	Line1: 使RecyclerView保持固定的大小,这样会提高RecyclerView的性能。
@@ -68,7 +82,14 @@ public class SongListFragment extends android.support.v4.app.Fragment {
         recyclerView.setAdapter(new SongListAdapter(getActivity()));
     }
 
-
+    @Override
+    public void onMusicRetrieverPrepared() {
+         itemList = mRetriever.getItems();
+//        for (MusicRetriever.Item item:itemList){
+//            Log.i(TAG, "ITEM " + item);
+//        }
+        adapter.notifyDataSetChanged();
+    }
 
 
     public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHolder> {
@@ -83,19 +104,20 @@ public class SongListFragment extends android.support.v4.app.Fragment {
         public SongListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view =
                     LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_activity, parent, false);
+
             return new ViewHolder(view);
         }
 
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         @Override
         public void onBindViewHolder(final SongListAdapter.ViewHolder holder, int position) {
             final View view = holder.mView;
-
+            TextView textView = (TextView)view.findViewById(R.id.textView);
+            textView.setText(itemList.get(position).getDisplayName());
         }
 
         @Override
         public int getItemCount() {
-            return 40;
+            return itemList.size();
         }
 
         public  class ViewHolder extends RecyclerView.ViewHolder {
@@ -104,6 +126,7 @@ public class SongListFragment extends android.support.v4.app.Fragment {
             public ViewHolder(View view) {
                 super(view);
                 mView = view;
+
             }
         }
     }

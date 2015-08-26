@@ -217,29 +217,34 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent.getAction();
-        switch (action) {
-            case ACTION_TOGGLE_PLAYBACK:
-                processTogglePlaybackRequest();
-                break;
-            case ACTION_PLAY:
-                processPlayRequest();
-                break;
-            case ACTION_PAUSE:
-                processPauseRequest();
-                break;
-            case ACTION_SKIP:
-                processSkipRequest();
-                break;
-            case ACTION_STOP:
-                processStopRequest();
-                break;
-            case ACTION_REWIND:
-                processRewindRequest();
-                break;
-            case ACTION_URL:
-                processAddRequest(intent);
-                break;
+        Log.d(TAG, "action == " + action);
+        if(action != null){
+
+            switch (action) {
+                case ACTION_TOGGLE_PLAYBACK:
+                    processTogglePlaybackRequest();
+                    break;
+                case ACTION_PLAY:
+                    processPlayRequest();
+                    break;
+                case ACTION_PAUSE:
+                    processPauseRequest();
+                    break;
+                case ACTION_SKIP:
+                    processSkipRequest();
+                    break;
+                case ACTION_STOP:
+                    processStopRequest();
+                    break;
+                case ACTION_REWIND:
+                    processRewindRequest();
+                    break;
+                case ACTION_URL:
+                    processAddRequest(intent);
+                    break;
+            }
         }
+
 
         return START_NOT_STICKY; // Means we started the service, but don't want it to
                                  // restart in case it's killed.
@@ -434,7 +439,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                 mPlayer.setDataSource(manualUrl);
                 mIsStreaming = manualUrl.startsWith("http:") || manualUrl.startsWith("https:");
 
-                playingItem = new Item(0, null, manualUrl, null, 0);
+                playingItem = new Item(0, null, manualUrl, null, 0, null);
             }
             else {
                 mIsStreaming = false; // playing a locally available song
@@ -618,10 +623,10 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     }
 
     public void onMusicRetrieverPrepared() {
-        List<Item> itemList = mRetriever.getItems();
-        for (Item item:itemList){
-            Log.i(TAG, "ITEM " + item);
-        }
+//        List<Item> itemList = mRetriever.getItems();
+//        for (Item item:itemList){
+//            Log.i(TAG, "ITEM " + item);
+//        }
         // Done retrieving!
         mState = State.Stopped;
 

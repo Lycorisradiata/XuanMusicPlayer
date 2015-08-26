@@ -15,9 +15,11 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.jw.cool.xuanmusicplauer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplauer.fragments.SongListFragment;
 
 import java.util.ArrayList;
@@ -44,10 +46,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        Log.d("mainactivity", "oncreate enter");
         initToolbar();
         initInstances();
-        startService(new Intent("com.jw.cool.xuanmusicplauer.coreservice.MusicService"));
+        Intent intent = new Intent(MainActivity.this,MusicService.class);
+        startService(intent);
     }
 
     private void initToolbar() {

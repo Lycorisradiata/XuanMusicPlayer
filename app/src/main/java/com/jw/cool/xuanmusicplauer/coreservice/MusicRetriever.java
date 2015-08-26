@@ -81,19 +81,23 @@ public class MusicRetriever {
         int albumColumn = cur.getColumnIndex(MediaStore.Audio.Media.ALBUM);
         int durationColumn = cur.getColumnIndex(MediaStore.Audio.Media.DURATION);
         int idColumn = cur.getColumnIndex(MediaStore.Audio.Media._ID);
+        int fileName = cur.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME);
 
         Log.i(TAG, "Title column index: " + String.valueOf(titleColumn));
         Log.i(TAG, "ID column index: " + String.valueOf(titleColumn));
 
         // add each song to mItems
         do {
-            Log.i(TAG, "ID: " + cur.getString(idColumn) + " Title: " + cur.getString(titleColumn));
+            Log.i(TAG, "ID: " + cur.getString(idColumn) + " Title: " + cur.getString(titleColumn)
+            + " DISPLAY_NAME " + cur.getString(fileName));
             mItems.add(new Item(
                     cur.getLong(idColumn),
                     cur.getString(artistColumn),
                     cur.getString(titleColumn),
                     cur.getString(albumColumn),
-                    cur.getLong(durationColumn)));
+                    cur.getLong(durationColumn),
+                    cur.getString(fileName)));
+
         } while (cur.moveToNext());
 
         Log.i(TAG, "Done querying media. MusicRetriever is ready.");
@@ -119,13 +123,15 @@ public class MusicRetriever {
         String title;
         String album;
         long duration;
+        String displayName;
 
-        public Item(long id, String artist, String title, String album, long duration) {
+        public Item(long id, String artist, String title, String album, long duration, String displayName) {
             this.id = id;
             this.artist = artist;
             this.title = title;
             this.album = album;
             this.duration = duration;
+            this.displayName = displayName;
         }
 
         public long getId() {
@@ -146,6 +152,9 @@ public class MusicRetriever {
 
         public long getDuration() {
             return duration;
+        }
+        public String getDisplayName() {
+            return displayName;
         }
 
         public Uri getURI() {
