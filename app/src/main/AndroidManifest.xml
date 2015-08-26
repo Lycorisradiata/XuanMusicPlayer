@@ -4,9 +4,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme.WithoutActionBar" >
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name" >
@@ -16,6 +16,30 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:exported="false" android:name="com.jw.cool.xuanmusicplauer.coreservice.MusicService">
+            <intent-filter>
+                <action android:name="com.jw.musicplayer.action.TOGGLE_PLAYBACK" />
+                <action android:name="com.jw.musicplayer.action.PLAY" />
+                <action android:name="com.jw.musicplayer.action.PAUSE" />
+                <action android:name="com.jw.musicplayer.action.SKIP" />
+                <action android:name="com.jw.musicplayer.action.REWIND" />
+                <action android:name="com.jw.musicplayer.action.STOP" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.jw.musicplayer.action.URL" />
+                <data android:scheme="http" />
+            </intent-filter>
+        </service>
+
+        <receiver android:name="com.jw.cool.xuanmusicplauer.coreservice.MusicIntentReceiver">
+            <intent-filter>
+                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
