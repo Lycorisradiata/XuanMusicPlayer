@@ -1,5 +1,6 @@
 package com.jw.cool.xuanmusicplauer;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
         initToolbar();
         initInstances();
+        startService(new Intent("com.jw.cool.xuanmusicplauer.coreservice.MusicService"));
     }
 
     private void initToolbar() {
