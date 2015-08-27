@@ -92,8 +92,8 @@ public class MusicRetriever {
         do {
             String displayName = Handler_String.getFileNameNoEx(cur.getString(fileName));
 
-            Log.i(TAG, "ID: " + cur.getString(idColumn) + " Title: " + cur.getString(titleColumn)
-            + " DISPLAY_NAME " + cur.getString(fileName));
+//            Log.i(TAG, "ID: " + cur.getString(idColumn) + " Title: " + cur.getString(titleColumn)
+//            + " DISPLAY_NAME " + cur.getString(fileName));
             mItems.add(new Item(
                     cur.getLong(idColumn),
                     cur.getString(artistColumn),

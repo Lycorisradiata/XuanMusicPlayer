@@ -41,6 +41,11 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
+        <activity android:name=".PlayActivity">
+            <intent-filter>
+                <action android:name="com.jw.musicplayer.action.PlayActivity"/>
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

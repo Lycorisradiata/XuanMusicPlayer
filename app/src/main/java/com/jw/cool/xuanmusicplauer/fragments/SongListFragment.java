@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jw.cool.xuanmusicplauer.PlayActivity;
 import com.jw.cool.xuanmusicplauer.R;
 import com.jw.cool.xuanmusicplauer.coreservice.MusicRetriever;
 import com.jw.cool.xuanmusicplauer.coreservice.MusicService;
@@ -54,6 +55,7 @@ public class SongListFragment extends android.support.v4.app.Fragment
         bundle.putString("displayName", item.getDisplayName());
         intent.putExtras(bundle);
         getActivity().startService(intent);
+        getActivity().startActivity(new Intent(getActivity(), PlayActivity.class));
     }
 
     void onItemLongClick(View view,int position){
