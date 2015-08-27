@@ -35,6 +35,7 @@ import android.media.RemoteControlClient;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
@@ -45,7 +46,6 @@ import com.jw.cool.xuanmusicplauer.R;
 import com.jw.cool.xuanmusicplauer.coreservice.MusicRetriever.Item;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Service that handles media playback. This is the Service through which we perform all the media
@@ -67,12 +67,12 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     // AndroidManifest.xml.
     public static final String ACTION_TOGGLE_PLAYBACK =
             "com.example.android.musicplayer.action.TOGGLE_PLAYBACK";
-    public static final String ACTION_PLAY = "com.example.android.musicplayer.action.PLAY";
-    public static final String ACTION_PAUSE = "com.example.android.musicplayer.action.PAUSE";
-    public static final String ACTION_STOP = "com.example.android.musicplayer.action.STOP";
-    public static final String ACTION_SKIP = "com.example.android.musicplayer.action.SKIP";
-    public static final String ACTION_REWIND = "com.example.android.musicplayer.action.REWIND";
-    public static final String ACTION_URL = "com.example.android.musicplayer.action.URL";
+    public static final String ACTION_PLAY = "com.jw.musicplayer.action.PLAY";
+    public static final String ACTION_PAUSE = "com.jw.musicplayer.action.PAUSE";
+    public static final String ACTION_STOP = "com.jw.musicplayer.action.STOP";
+    public static final String ACTION_SKIP = "com.jw.musicplayer.action.SKIP";
+    public static final String ACTION_REWIND = "com.jw.musicplayer.action.REWIND";
+    public static final String ACTION_URL = "com.jw.musicplayer.action.URL";
 
     // The volume we set the media player to when we lose audio focus, but are allowed to reduce
     // the volume instead of stopping playback.
@@ -218,6 +218,9 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent.getAction();
         Log.d(TAG, "action == " + action);
+
+
+//        Item(long id, String artist, String title, String album, long duration, String displayName)
         if(action != null){
 
             switch (action) {
@@ -225,7 +228,15 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                     processTogglePlaybackRequest();
                     break;
                 case ACTION_PLAY:
-                    processPlayRequest();
+                    Bundle bundle = intent.getExtras();
+                    String strEmpty = "";
+                    Item item = new Item(bundle.getLong("id"),
+                            strEmpty ,
+                            bundle.getString("title"),
+                            strEmpty,
+                            bundle.getLong("duration"),
+                            bundle.getString("displayName") );
+                    processPlayRequest(item);
                     break;
                 case ACTION_PAUSE:
                     processPauseRequest();
@@ -252,13 +263,13 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
     void processTogglePlaybackRequest() {
         if (mState == State.Paused || mState == State.Stopped) {
-            processPlayRequest();
+            processPlayRequest(null);
         } else {
             processPauseRequest();
         }
     }
 
-    void processPlayRequest() {
+    void processPlayRequest(Item item) {
         if (mState == State.Retrieving) {
             // If we are still retrieving media, just set the flag to start playing when we're
             // ready
@@ -270,16 +281,20 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         tryToGetAudioFocus();
 
         // actually play the song
-
+        Log.d(TAG, "mState " + mState);
         if (mState == State.Stopped) {
             // If we're stopped, just go ahead to the next song and start playing
-            playNextSong(null);
+            playNextSong(null, item);
         }
         else if (mState == State.Paused) {
             // If we're paused, just continue playback and restore the 'foreground service' state.
             mState = State.Playing;
             setUpAsForeground(mSongTitle + " (playing)");
             configAndStartMediaPlayer();
+        } else if (mState == State.Playing){
+            Log.d(TAG, "mState is" + mState);
+
+            playNextSong(null, item);
         }
 
         // Tell any remote controls that our playback state is 'playing'.
@@ -320,7 +335,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     void processSkipRequest() {
         if (mState == State.Playing || mState == State.Paused) {
             tryToGetAudioFocus();
-            playNextSong(null);
+            playNextSong(null, null);
         }
     }
 
@@ -410,7 +425,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         else if (mState == State.Playing || mState == State.Paused || mState == State.Stopped) {
             Log.i(TAG, "Playing from URL/path: " + intent.getData().toString());
             tryToGetAudioFocus();
-            playNextSong(intent.getData().toString());
+            playNextSong(intent.getData().toString(), null);
         }
     }
 
@@ -426,7 +441,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
      * manualUrl is non-null, then it specifies the URL or path to the song that will be played
      * next.
      */
-    void playNextSong(String manualUrl) {
+    void playNextSong(String manualUrl, Item item) {
         mState = State.Stopped;
         relaxResources(false); // release everything except MediaPlayer
 
@@ -444,7 +459,8 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             else {
                 mIsStreaming = false; // playing a locally available song
 
-                playingItem = mRetriever.getRandomItem();
+//                playingItem = mRetriever.getRandomItem();
+                playingItem = item;
                 if (playingItem == null) {
                     Toast.makeText(this,
                             "No available music to play. Place some music on your external storage "
@@ -527,7 +543,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     /** Called when media player is done playing current song. */
     public void onCompletion(MediaPlayer player) {
         // The media player finished playing the current song, so we go ahead and start the next.
-        playNextSong(null);
+        playNextSong(null, null);
     }
 
     /** Called when media player is done preparing. */
@@ -634,7 +650,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         if (mStartPlayingAfterRetrieve) {
             tryToGetAudioFocus();
             playNextSong(mWhatToPlayAfterRetrieve == null ?
-                    null : mWhatToPlayAfterRetrieve.toString());
+                    null : mWhatToPlayAfterRetrieve.toString(), null);
         }
     }
 

@@ -8,8 +8,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:text="Activity"
-        android:id="@+id/textView"
+        android:id="@+id/text_view_song_list"
         android:gravity="center_vertical"
         android:background="@color/song_list_background"
         android:layout_gravity="center_vertical"

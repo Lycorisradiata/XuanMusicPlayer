@@ -23,6 +23,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import com.jw.cool.xuanmusicplauer.utils.Handler_String;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -88,6 +90,8 @@ public class MusicRetriever {
 
         // add each song to mItems
         do {
+            String displayName = Handler_String.getFileNameNoEx(cur.getString(fileName));
+
             Log.i(TAG, "ID: " + cur.getString(idColumn) + " Title: " + cur.getString(titleColumn)
             + " DISPLAY_NAME " + cur.getString(fileName));
             mItems.add(new Item(
@@ -96,7 +100,7 @@ public class MusicRetriever {
                     cur.getString(titleColumn),
                     cur.getString(albumColumn),
                     cur.getLong(durationColumn),
-                    cur.getString(fileName)));
+                    displayName));
 
         } while (cur.moveToNext());
 

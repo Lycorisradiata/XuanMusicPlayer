@@ -1,6 +1,7 @@
 package com.jw.cool.xuanmusicplauer.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 
 import com.jw.cool.xuanmusicplauer.R;
 import com.jw.cool.xuanmusicplauer.coreservice.MusicRetriever;
+import com.jw.cool.xuanmusicplauer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplauer.coreservice.PrepareMusicRetrieverTask;
 import com.jw.cool.xuanmusicplauer.coreservice.PrepareMusicRetrieverTask.MusicRetrieverPreparedListener;
 
@@ -36,6 +38,22 @@ public class SongListFragment extends android.support.v4.app.Fragment
 //    }
     void onItemClick(View view,int position){
         Toast.makeText(getActivity(), "Click " + position, Toast.LENGTH_LONG).show();
+        Intent intent = new Intent();
+        intent.setAction(MusicService.ACTION_PLAY);
+        MusicRetriever.Item item = itemList.get(position);
+        Bundle bundle = new Bundle();
+//        Item item = new Item(bundle.getLong("id"),
+//                strEmpty ,
+//                bundle.getString("title"),
+//                strEmpty,
+//                bundle.getLong("duration"),
+//                bundle.getString("displayName")
+        bundle.putLong("id", item.getId());
+        bundle.putLong("duration", item.getDuration());
+        bundle.putString("title", item.getTitle());
+        bundle.putString("displayName", item.getDisplayName());
+        intent.putExtras(bundle);
+        getActivity().startService(intent);
     }
 
     void onItemLongClick(View view,int position){
@@ -55,7 +73,7 @@ public class SongListFragment extends android.support.v4.app.Fragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        recyclerView = (RecyclerView) inflater.inflate(R.layout.fragment_activity_new, container, false);
+        recyclerView = (RecyclerView) inflater.inflate(R.layout.fragment_song_list, container, false);
         return recyclerView;
     }
 
@@ -121,7 +139,7 @@ public class SongListFragment extends android.support.v4.app.Fragment
         @Override
         public SongListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view =
-                    LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_activity, parent, false);
+                    LayoutInflater.from(parent.getContext()).inflate(R.layout.item_song_list, parent, false);
 
             return new ViewHolder(view);
         }
@@ -129,7 +147,7 @@ public class SongListFragment extends android.support.v4.app.Fragment
         @Override
         public void onBindViewHolder(final SongListAdapter.ViewHolder holder, int position) {
             final View view = holder.mView;
-            TextView textView = (TextView)view.findViewById(R.id.textView);
+            TextView textView = (TextView)view.findViewById(R.id.text_view_song_list);
             textView.setText(itemList.get(position).getDisplayName());
             holder.position = position;
         }
