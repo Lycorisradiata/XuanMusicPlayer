@@ -1,4 +1,4 @@
-package com.jw.cool.xuanmusicplauer.lrc;
+package com.jw.cool.xuanmusicplayer.lrc;
 /**
  * 2013/6/1
  * @author wwj

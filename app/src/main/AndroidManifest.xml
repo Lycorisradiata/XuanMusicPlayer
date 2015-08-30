@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jw.cool.xuanmusicplauer" >
+    package="com.jw.cool.xuanmusicplayer" >
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <application
@@ -18,7 +18,7 @@
             </intent-filter>
         </activity>
 
-        <service android:exported="true" android:name="com.jw.cool.xuanmusicplauer.coreservice.MusicService">
+        <service android:exported="true" android:name=".coreservice.MusicService">
             <intent-filter>
                 <action android:name="com.jw.musicplayer.action.TOGGLE_PLAYBACK" />
                 <action android:name="com.jw.musicplayer.action.PLAY" />
@@ -26,6 +26,8 @@
                 <action android:name="com.jw.musicplayer.action.SKIP" />
                 <action android:name="com.jw.musicplayer.action.REWIND" />
                 <action android:name="com.jw.musicplayer.action.STOP" />
+                <action android:name="com.jw.musicplayer.action.PREVIOUS" />
+                <action android:name="com.jw.musicplayer.action.SEEK" />
             </intent-filter>
             <intent-filter>
                 <action android:name="com.jw.musicplayer.action.URL" />
@@ -33,7 +35,7 @@
             </intent-filter>
         </service>
 
-        <receiver android:name="com.jw.cool.xuanmusicplauer.coreservice.MusicIntentReceiver">
+        <receiver android:name=".coreservice.MusicIntentReceiver">
             <intent-filter>
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>

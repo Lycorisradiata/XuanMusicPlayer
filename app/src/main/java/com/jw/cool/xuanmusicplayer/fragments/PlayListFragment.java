@@ -1,4 +1,4 @@
-package com.jw.cool.xuanmusicplauer.fragments;
+package com.jw.cool.xuanmusicplayer.fragments;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -8,7 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.jw.cool.xuanmusicplauer.R;
+import com.jw.cool.xuanmusicplayer.R;
+
 
 /**
  * A simple {@link Fragment} subclass.

@@ -1,4 +1,4 @@
-package com.jw.cool.xuanmusicplauer.utils;
+package com.jw.cool.xuanmusicplayer.utils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  * 
  * @author gdpancheng@gmail.com 2013-10-22 下午1:09:14
  */
-public class Handler_String {
+public class HandlerString {
 	public static final int TYPE_NUMBER = 0;
 	public static final int TYPE_ENGLISH = 1;
 	public static final int TYPE_FUHAO = 2;

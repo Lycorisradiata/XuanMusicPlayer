@@ -1,4 +1,4 @@
-package com.jw.cool.xuanmusicplauer.coreservice;
+package com.jw.cool.xuanmusicplayer.coreservice;
 
 import android.content.ComponentName;
 import android.media.AudioManager;

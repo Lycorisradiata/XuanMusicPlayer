@@ -32,12 +32,34 @@
             android:layout_marginLeft="10dp"
             />
     </LinearLayout>
+
     <SeekBar
         android:id="@+id/seek_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="10dp"/>
+    <RelativeLayout
+        android:id="@+id/process_show_texts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/seek_bar">
+
+        <TextView
+            android:id="@+id/current_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="14dp"
+            android:text="00:00"/>
+
+        <TextView
+            android:id="@+id/total_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="14dp" />
+    </RelativeLayout>
     <LinearLayout
         android:id="@+id/operate_bars"
         android:layout_width="match_parent"
@@ -45,7 +67,7 @@
         android:orientation="horizontal"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:layout_above="@id/seek_bar">
+        android:layout_above="@id/process_show_texts">
         <Button
             android:id="@+id/previous"
             android:layout_width="wrap_content"

@@ -1,4 +1,4 @@
-package com.jw.cool.xuanmusicplauer.lrc;
+package com.jw.cool.xuanmusicplayer.lrc;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -8,9 +8,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-
-import android.util.Xml.Encoding;
-import android.widget.SlidingDrawer;
 
 /**
  * 2013/6/1

@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package com.jw.cool.xuanmusicplauer.coreservice;
+package com.jw.cool.xuanmusicplayer.coreservice;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
 

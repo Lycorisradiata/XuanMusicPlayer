@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.jw.cool.xuanmusicplauer.coreservice;
+package com.jw.cool.xuanmusicplayer.coreservice;
 
 import android.content.Context;
 import android.media.AudioManager;

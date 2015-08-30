@@ -1,4 +1,4 @@
-package com.jw.cool.xuanmusicplauer.lrc;
+package com.jw.cool.xuanmusicplayer.lrc;
 
 import java.util.ArrayList;
 import java.util.List;

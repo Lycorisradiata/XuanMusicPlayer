@@ -1,4 +1,4 @@
-package com.jw.cool.xuanmusicplauer;
+package com.jw.cool.xuanmusicplayer;
 
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -19,8 +19,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.jw.cool.xuanmusicplauer.coreservice.MusicService;
-import com.jw.cool.xuanmusicplauer.fragments.SongListFragment;
+import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
+import com.jw.cool.xuanmusicplayer.fragments.SongListFragment;
 
 import java.util.ArrayList;
 

@@ -1,4 +1,4 @@
-package com.jw.cool.xuanmusicplauer.fragments;
+package com.jw.cool.xuanmusicplayer.fragments;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,18 +12,17 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jw.cool.xuanmusicplauer.PlayActivity;
-import com.jw.cool.xuanmusicplauer.R;
-import com.jw.cool.xuanmusicplauer.coreservice.MusicRetriever;
-import com.jw.cool.xuanmusicplauer.coreservice.MusicService;
-import com.jw.cool.xuanmusicplauer.coreservice.PrepareMusicRetrieverTask;
-import com.jw.cool.xuanmusicplauer.coreservice.PrepareMusicRetrieverTask.MusicRetrieverPreparedListener;
+import com.jw.cool.xuanmusicplayer.PlayActivity;
+import com.jw.cool.xuanmusicplayer.R;
+import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
+import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
+import com.jw.cool.xuanmusicplayer.coreservice.PrepareMusicRetrieverTask;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SongListFragment extends android.support.v4.app.Fragment
-        implements MusicRetrieverPreparedListener {
+        implements PrepareMusicRetrieverTask.MusicRetrieverPreparedListener {
     final String TAG = "SongListFragment";
     List<MusicRetriever.Item> itemList = new ArrayList<MusicRetriever.Item>();
 	Adapter adapter;
@@ -54,6 +53,7 @@ public class SongListFragment extends android.support.v4.app.Fragment
         bundle.putString("title", item.getTitle());
         bundle.putString("displayName", item.getDisplayName());
         intent.putExtras(bundle);
+        MusicRetriever.setCurrentPos(position);
         getActivity().startService(intent);
         getActivity().startActivity(new Intent(getActivity(), PlayActivity.class));
     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.jw.cool.xuanmusicplauer.coreservice;
+package com.jw.cool.xuanmusicplayer.coreservice;
 
 /**
  * Represents something that can react to audio focus events. We implement this instead of just

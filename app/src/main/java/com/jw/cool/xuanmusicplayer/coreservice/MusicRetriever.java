@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.jw.cool.xuanmusicplauer.coreservice;
+package com.jw.cool.xuanmusicplayer.coreservice;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -23,7 +23,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import com.jw.cool.xuanmusicplauer.utils.Handler_String;
+import com.jw.cool.xuanmusicplayer.utils.HandlerString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,14 +36,16 @@ import java.util.Random;
  * request.
  */
 public class MusicRetriever {
-    final String TAG = "MusicRetriever";
+    final static String TAG = "MusicRetriever";
 
     ContentResolver mContentResolver;
 
     // the items (songs) we have queried
-    List<Item> mItems = new ArrayList<Item>();
+    static List<Item> mItems = new ArrayList<Item>();
+    static int currentPos;
+    static int playMode;
 
-    Random mRandom = new Random();
+    static Random mRandom = new Random();
 
     public MusicRetriever(ContentResolver cr) {
         mContentResolver = cr;
@@ -84,14 +86,17 @@ public class MusicRetriever {
         int durationColumn = cur.getColumnIndex(MediaStore.Audio.Media.DURATION);
         int idColumn = cur.getColumnIndex(MediaStore.Audio.Media._ID);
         int fileName = cur.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME);
-
+        int albumId = cur.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
+        int albumArt = cur.getColumnIndex(MediaStore.Audio.AlbumColumns.ALBUM_ART);
+        ;
         Log.i(TAG, "Title column index: " + String.valueOf(titleColumn));
         Log.i(TAG, "ID column index: " + String.valueOf(titleColumn));
 
         // add each song to mItems
         do {
-            String displayName = Handler_String.getFileNameNoEx(cur.getString(fileName));
-
+            String displayName = HandlerString.getFileNameNoEx(cur.getString(fileName));
+//            String albumArts = cur.getString(albumArt);
+//            Log.d(TAG, "prepare albumArts " + albumArts);
 //            Log.i(TAG, "ID: " + cur.getString(idColumn) + " Title: " + cur.getString(titleColumn)
 //            + " DISPLAY_NAME " + cur.getString(fileName));
             mItems.add(new Item(
@@ -100,9 +105,31 @@ public class MusicRetriever {
                     cur.getString(titleColumn),
                     cur.getString(albumColumn),
                     cur.getLong(durationColumn),
-                    displayName));
+                    displayName,
+                    cur.getLong(albumId)
+                    ));
 
         } while (cur.moveToNext());
+
+
+        Uri uri2 = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
+        Log.d(TAG, "prepare uri2 " + uri2);
+//        for(int i = 0; i < mItems.size(); i++){
+//            int id =  (int)mItems.get(i).getAlbumId();
+            Cursor cur2 = mContentResolver.query(uri2, null,
+                    null, null, null);
+        int size = cur2.getColumnCount();
+
+//        Log.d(TAG, "prepare getCount" + cur2.getCount());
+//            cur2.moveToFirst();
+//            do{
+//                for (int i = 0; i < size; i ++){
+//                    Log.d(TAG, "prepare " + cur2.getColumnName(i) + " " + cur2.getCount());
+//                    String str = cur2.getString(cur2.getColumnIndex(cur2.getColumnName(i)));
+//                    Log.d(TAG, "prepare str " + str);
+//                }
+//            }while (cur2.moveToNext());
+//        }
 
         Log.i(TAG, "Done querying media. MusicRetriever is ready.");
     }
@@ -117,9 +144,83 @@ public class MusicRetriever {
         return mItems.get(mRandom.nextInt(mItems.size()));
     }
 
-    public List<Item> getItems(){
+    public static List<Item> getItems(){
         return mItems;
     }
+
+    public static Item getCurrentItem(){
+        return mItems.get(currentPos);
+    }
+
+    public static Item getNextItem(){
+        Item item = null;
+        switch (playMode){
+            case PlayMode.all_order:
+                if(currentPos < mItems.size() - 1)
+                item = mItems.get(++currentPos);
+                break;
+            case PlayMode.all_repeat:
+                currentPos = (++currentPos)%mItems.size();
+                item = mItems.get(currentPos);
+                break;
+            case PlayMode.random:
+                currentPos = mRandom.nextInt(mItems.size());
+                item = mItems.get(currentPos);
+                break;
+            case PlayMode.one_repeat:
+                item = mItems.get(currentPos);
+                break;
+            case PlayMode.one_once:
+                break;
+            default:
+        }
+        return item;
+    }
+
+    public static Item getPreviousItem(){
+        Item item = null;
+        switch (playMode){
+            case PlayMode.all_order:
+                if(currentPos > 0)
+                    item = mItems.get(--currentPos);
+                break;
+            case PlayMode.all_repeat:
+                currentPos = (--currentPos + mItems.size())%mItems.size();
+                item = mItems.get(currentPos);
+                break;
+            case PlayMode.random:
+                currentPos = mRandom.nextInt(mItems.size());
+                item = mItems.get(currentPos);
+                break;
+            case PlayMode.one_repeat:
+                item = mItems.get(currentPos);
+                break;
+            case PlayMode.one_once:
+                break;
+            default:
+        }
+        Log.d(TAG, "getPreviousItem currentPos " + currentPos);
+        return item;
+    }
+
+
+
+    public static void setCurrentPos(int pos){
+        currentPos = pos;
+    }
+
+    public static int getCurrentPos(){
+        return currentPos;
+    }
+
+    public static void setPlayMode(int mode){
+        playMode = mode;
+    }
+
+    public static int getPlayMode(){
+        return playMode;
+    }
+
 
     public static class Item {
         long id;
@@ -128,14 +229,17 @@ public class MusicRetriever {
         String album;
         long duration;
         String displayName;
+        long albumId;
 
-        public Item(long id, String artist, String title, String album, long duration, String displayName) {
+        public Item(long id, String artist, String title, String album,
+                    long duration, String displayName, long albumId) {
             this.id = id;
             this.artist = artist;
             this.title = title;
             this.album = album;
             this.duration = duration;
             this.displayName = displayName;
+            this.albumId = albumId;
         }
 
         public long getId() {
@@ -160,6 +264,11 @@ public class MusicRetriever {
         public String getDisplayName() {
             return displayName;
         }
+
+        public long getAlbumId() {
+            return albumId;
+        }
+
 
         public Uri getURI() {
             return ContentUris.withAppendedId(
