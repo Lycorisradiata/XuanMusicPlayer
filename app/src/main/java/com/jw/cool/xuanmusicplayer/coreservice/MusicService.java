@@ -148,7 +148,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
     // Our instance of our MusicRetriever, which handles scanning for media and
     // providing titles and URIs as we need.
-//    MusicRetriever mRetriever;
+    MusicRetriever mRetriever;
 
     // our RemoteControlClient object, which will use remote control APIs available in
     // SDK level >= 14, if they're available.
@@ -209,9 +209,9 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
-        // Create the retriever and start an asynchronous task that will prepare it.
-//        mRetriever = new MusicRetriever(getContentResolver());
-//        (new PrepareMusicRetrieverTask(mRetriever,this)).execute();
+//         Create the retriever and start an asynchronous task that will prepare it.
+        mRetriever = new MusicRetriever(getContentResolver());
+        (new PrepareMusicRetrieverTask(mRetriever,this)).execute();
 
 
         // create the Audio Focus Helper, if the Audio Focus feature is available (SDK 8 or above)

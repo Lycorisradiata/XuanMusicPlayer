@@ -26,24 +26,24 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
-public class SongListFragment extends android.support.v4.app.Fragment
-        implements PrepareMusicRetrieverTask.MusicRetrieverPreparedListener {
+public class SongListFragment extends android.support.v4.app.Fragment {
     final String TAG = "SongListFragment";
     List<MusicRetriever.Item> itemList = new ArrayList<MusicRetriever.Item>();
 	Adapter adapter;
     MusicRetriever mRetriever;
     void onItemClick(View view,int position){
-        Toast.makeText(getActivity(), "Click " + position, Toast.LENGTH_LONG).show();
+//        Toast.makeText(getActivity(), "Click " + position, Toast.LENGTH_LONG).show();
         Intent intent = new Intent();
         intent.setAction(MusicService.ACTION_PLAY);
         MusicRetriever.Item item = itemList.get(position);
+        MusicRetriever.setCurrentPos(item);
         Bundle bundle = new Bundle();
         bundle.putLong("id", item.getId());
         bundle.putLong("duration", item.getDuration());
         bundle.putString("title", item.getTitle());
         bundle.putString("displayName", item.getDisplayName());
         intent.putExtras(bundle);
-        MusicRetriever.setCurrentPos(position);
+
         getActivity().startService(intent);
         getActivity().startActivity(new Intent(getActivity(), PlayActivity.class));
     }
@@ -74,17 +74,13 @@ public class SongListFragment extends android.support.v4.app.Fragment
 
     /**
      * 根据输入框中的值来过滤数据并更新ListView
-     * @param filterStr
+     * @param filterStr 需匹配的字符串
      */
     private void filterData(String filterStr){
-        itemList = MusicRetriever.getItems();
 //        Log.d(TAG, "filterData filterStr " + filterStr);
-//        Log.d(TAG, "filterData itemList before" + itemList.size());
-        List<MusicRetriever.Item> templist = new ArrayList<MusicRetriever.Item>();
-        if(TextUtils.isEmpty(filterStr)){
-//            filterDateList = SourceDateList;
-            return;
-        }else{
+        itemList = MusicRetriever.getItems();
+        if(!TextUtils.isEmpty(filterStr)){
+            List<MusicRetriever.Item> templist = new ArrayList<MusicRetriever.Item>();
             for(MusicRetriever.Item item : itemList){
                 String name = item.getDisplayName();
 //                Log.d(TAG, "filterData name " + name);
@@ -92,9 +88,9 @@ public class SongListFragment extends android.support.v4.app.Fragment
                     templist.add(item);
                 }
             }
+            itemList = templist;
         }
-        itemList = templist;
-//        Log.d(TAG, "filterData itemList " + itemList.size());
+        Log.d(TAG, "filterData itemList " + itemList.size());
         adapter.notifyDataSetChanged();
     }
 
@@ -102,13 +98,15 @@ public class SongListFragment extends android.support.v4.app.Fragment
     public void onStart() {
     	// TODO Auto-generated method stub
     	super.onStart();
-    	recyclerView.setHasFixedSize(true);
+        Log.d(TAG, "onStart test");
+        recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
         adapter = new SongListAdapter(getActivity());
         recyclerView.setAdapter(adapter);
         mRetriever = new MusicRetriever(getActivity().getContentResolver());
-        (new PrepareMusicRetrieverTask(mRetriever,this)).execute();
+//        if()
+//        (new PrepareMusicRetrieverTask(mRetriever,this)).execute();
 //        如上述代码：
 //
 //    	Line1: 使RecyclerView保持固定的大小,这样会提高RecyclerView的性能。
@@ -131,17 +129,9 @@ public class SongListFragment extends android.support.v4.app.Fragment
         super.onActivityCreated(savedInstanceState);
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
         recyclerView.setAdapter(new SongListAdapter(getActivity()));
+        itemList = MusicRetriever.getItems();
+        //        adapter.notifyDataSetChanged();
     }
-
-    @Override
-    public void onMusicRetrieverPrepared() {
-         itemList = mRetriever.getItems();
-//        for (MusicRetriever.Item item:itemList){
-//            Log.i(TAG, "ITEM " + item);
-//        }
-        adapter.notifyDataSetChanged();
-    }
-
 
     public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHolder> {
 
@@ -193,7 +183,7 @@ public class SongListFragment extends android.support.v4.app.Fragment
             @Override
             public boolean onLongClick(View view) {
                 onItemLongClick(view, position);
-                return false;
+                return true;
             }
         }
     }

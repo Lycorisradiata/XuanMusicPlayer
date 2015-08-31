@@ -2,6 +2,7 @@ package com.jw.cool.xuanmusicplayer;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -20,6 +21,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
@@ -164,27 +166,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void initSearchView(){
+//        mSearchView.setSubmitButtonEnabled(true);
         //    获取了SearchView，我们就能设置其相应的属性，比如我想让它一开始就处于显示SearchView的状态
-        mSearchView.setIconified(false);
+//        mSearchView.setIconified(false);
         //    而我不想让它隐藏SearchView，则可以
-        mSearchView.setIconifiedByDefault(false);
+//
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
 //                Toast.makeText(MainActivity.this, query, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "doSearch query" + query);
+//                mSearchView.setIconifiedByDefault(false);
+//                mSearchView.setIconified(false);
                 doSearch(true);
+                mSearchView.clearFocus();//这样就不用按两次back键才返回了
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                mSearchText = newText ;
+                mSearchText = newText;
                 doSearch(false);
                 return true;
             }
         });
+
+        mSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                Log.d(TAG, "onClose ");
+                return false;
+            }
+        });
     }
+
+
 
     void doSearch(boolean isCompleted){
 //        Toast.makeText(this, mSearchText, Toast.LENGTH_SHORT).show();
@@ -209,8 +225,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        final MenuItem item = menu.findItem(R.id.action_search);
-        mSearchView = (SearchView) MenuItemCompat.getActionView(item);
+        final MenuItem menuItem = menu.findItem(R.id.action_search);
+        mSearchView = (SearchView) MenuItemCompat.getActionView(menuItem);
         initSearchView();
         return true;
     }
