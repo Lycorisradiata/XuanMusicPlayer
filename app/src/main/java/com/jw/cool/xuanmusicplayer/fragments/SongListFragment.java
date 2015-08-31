@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +19,12 @@ import com.jw.cool.xuanmusicplayer.R;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplayer.coreservice.PrepareMusicRetrieverTask;
+import com.jw.cool.xuanmusicplayer.events.SearchEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import de.greenrobot.event.EventBus;
 
 public class SongListFragment extends android.support.v4.app.Fragment
         implements PrepareMusicRetrieverTask.MusicRetrieverPreparedListener {
@@ -27,27 +32,12 @@ public class SongListFragment extends android.support.v4.app.Fragment
     List<MusicRetriever.Item> itemList = new ArrayList<MusicRetriever.Item>();
 	Adapter adapter;
     MusicRetriever mRetriever;
-//    private MyOnItemClickListener myOnItemClickListener;
-//    private MyOnItemLongClickListener myOnItemLongClickListener;
-//    public interface MyOnItemClickListener{
-//        void onItemClick(View view,int position);
-//    }
-//
-//    public interface MyOnItemLongClickListener{
-//        void onItemLongClick(View view,int position);
-//    }
     void onItemClick(View view,int position){
         Toast.makeText(getActivity(), "Click " + position, Toast.LENGTH_LONG).show();
         Intent intent = new Intent();
         intent.setAction(MusicService.ACTION_PLAY);
         MusicRetriever.Item item = itemList.get(position);
         Bundle bundle = new Bundle();
-//        Item item = new Item(bundle.getLong("id"),
-//                strEmpty ,
-//                bundle.getString("title"),
-//                strEmpty,
-//                bundle.getLong("duration"),
-//                bundle.getString("displayName")
         bundle.putLong("id", item.getId());
         bundle.putLong("duration", item.getDuration());
         bundle.putString("title", item.getTitle());
@@ -62,13 +52,10 @@ public class SongListFragment extends android.support.v4.app.Fragment
         Toast.makeText(getActivity(), "longClick " + position, Toast.LENGTH_LONG).show();
     }
 
-
-
     public static SongListFragment newInstance(Context context,Bundle bundle) {
         SongListFragment newFragment = new SongListFragment();
         newFragment.setArguments(bundle);
         return newFragment;
-
     }
 
     private RecyclerView recyclerView;
@@ -76,19 +63,46 @@ public class SongListFragment extends android.support.v4.app.Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         recyclerView = (RecyclerView) inflater.inflate(R.layout.fragment_song_list, container, false);
+        EventBus.getDefault().register(this);
         return recyclerView;
     }
 
+    public void onEvent(SearchEvent event) {
+        Log.d(TAG, "onEvent SearchEvent " + event.searchText + " " + event.isNeedQuery);
+        filterData(event.searchText);
+    }
 
-    
+    /**
+     * 根据输入框中的值来过滤数据并更新ListView
+     * @param filterStr
+     */
+    private void filterData(String filterStr){
+        itemList = MusicRetriever.getItems();
+//        Log.d(TAG, "filterData filterStr " + filterStr);
+//        Log.d(TAG, "filterData itemList before" + itemList.size());
+        List<MusicRetriever.Item> templist = new ArrayList<MusicRetriever.Item>();
+        if(TextUtils.isEmpty(filterStr)){
+//            filterDateList = SourceDateList;
+            return;
+        }else{
+            for(MusicRetriever.Item item : itemList){
+                String name = item.getDisplayName();
+//                Log.d(TAG, "filterData name " + name);
+                if(name.indexOf(filterStr) != -1){
+                    templist.add(item);
+                }
+            }
+        }
+        itemList = templist;
+//        Log.d(TAG, "filterData itemList " + itemList.size());
+        adapter.notifyDataSetChanged();
+    }
+
     @Override
     public void onStart() {
     	// TODO Auto-generated method stub
     	super.onStart();
-    	
-    	
     	recyclerView.setHasFixedSize(true);
-
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
         adapter = new SongListAdapter(getActivity());

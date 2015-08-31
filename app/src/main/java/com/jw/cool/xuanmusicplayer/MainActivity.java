@@ -10,21 +10,27 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
+import com.jw.cool.xuanmusicplayer.events.SearchEvent;
 import com.jw.cool.xuanmusicplayer.fragments.SongListFragment;
 
 import java.util.ArrayList;
 
+import de.greenrobot.event.EventBus;
+
 public class MainActivity extends AppCompatActivity {
+    final String TAG = "MainActivity";
     Toolbar toolbar;
     CollapsingToolbarLayout collapsingToolbarLayout;
 
@@ -38,9 +44,8 @@ public class MainActivity extends AppCompatActivity {
     ViewPager viewPager;
     ArrayList<Fragment> fragmentsList;
     ArrayList<String> titles;
-    
-
-   
+    SearchView mSearchView;
+    String mSearchText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,6 +162,36 @@ public class MainActivity extends AppCompatActivity {
         public void onPageScrollStateChanged(int arg0) {
         }
     }
+
+    void initSearchView(){
+        //    获取了SearchView，我们就能设置其相应的属性，比如我想让它一开始就处于显示SearchView的状态
+        mSearchView.setIconified(false);
+        //    而我不想让它隐藏SearchView，则可以
+        mSearchView.setIconifiedByDefault(false);
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+//                Toast.makeText(MainActivity.this, query, Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "doSearch query" + query);
+                doSearch(true);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                mSearchText = newText ;
+                doSearch(false);
+                return true;
+            }
+        });
+    }
+
+    void doSearch(boolean isCompleted){
+//        Toast.makeText(this, mSearchText, Toast.LENGTH_SHORT).show();
+        EventBus.getDefault().post(new SearchEvent(mSearchText, isCompleted));
+        Log.d(TAG, "doSearch " + mSearchText);
+    }
+
     
     @Override
     public void onPostCreate(Bundle savedInstanceState) {
@@ -174,6 +209,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        final MenuItem item = menu.findItem(R.id.action_search);
+        mSearchView = (SearchView) MenuItemCompat.getActionView(item);
+        initSearchView();
         return true;
     }
 
