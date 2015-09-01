@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/select_popup_window_background">
+    <Button
+        style="@style/PopupWindowButton"
+        android:id="@+id/select_cancel"
+        android:text="@string/select_cancel" />
+    <Button
+        style="@style/PopupWindowButton"
+        android:id="@+id/select_number"/>
+    <Button
+        style="@style/PopupWindowButton"
+        android:id="@+id/select_others"
+        android:text="@string/select_others" />
+    <Button
+        style="@style/PopupWindowButton"
+        android:id="@+id/select_all"
+        android:text="@string/select_all" />
+</LinearLayout>

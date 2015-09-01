@@ -8,17 +8,20 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jw.cool.xuanmusicplayer.PlayActivity;
 import com.jw.cool.xuanmusicplayer.R;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
-import com.jw.cool.xuanmusicplayer.coreservice.PrepareMusicRetrieverTask;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
 
 import java.util.ArrayList;
@@ -26,30 +29,166 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
-public class SongListFragment extends android.support.v4.app.Fragment {
+public class SongListFragment extends BaseFragment
+        implements View.OnClickListener{
     final String TAG = "SongListFragment";
     List<MusicRetriever.Item> itemList = new ArrayList<MusicRetriever.Item>();
 	Adapter adapter;
     MusicRetriever mRetriever;
-    void onItemClick(View view,int position){
-//        Toast.makeText(getActivity(), "Click " + position, Toast.LENGTH_LONG).show();
-        Intent intent = new Intent();
-        intent.setAction(MusicService.ACTION_PLAY);
-        MusicRetriever.Item item = itemList.get(position);
-        MusicRetriever.setCurrentPos(item);
-        Bundle bundle = new Bundle();
-        bundle.putLong("id", item.getId());
-        bundle.putLong("duration", item.getDuration());
-        bundle.putString("title", item.getTitle());
-        bundle.putString("displayName", item.getDisplayName());
-        intent.putExtras(bundle);
+    Button selectAll,  selectOthers, selectCancel, selectNumber;
+    Button addToPlaylist, remove, more;
+    boolean isNeedShowSelectBox;
+    PopupWindow selectPopupWindow;
+    PopupWindow operatePopupWindow;
+    boolean[] selectedStatus;
+    int selectedItemsCount;
 
-        getActivity().startService(intent);
-        getActivity().startActivity(new Intent(getActivity(), PlayActivity.class));
+    void onItemClick(View view,int position){
+        if(isNeedShowSelectBox){
+            selectedStatus[position] = !selectedStatus[position];
+            if(selectedStatus[position]){
+                selectedItemsCount++;
+            }else{
+                selectedItemsCount--;
+            }
+            setSelectNumber();
+            Log.d(TAG, "onItemClick position " + position + " " + selectedStatus[position]);
+            adapter.notifyItemChanged(position);
+        }else{
+            Intent intent = new Intent();
+            intent.setAction(MusicService.ACTION_PLAY);
+            MusicRetriever.Item item = itemList.get(position);
+            MusicRetriever.setCurrentPos(item);
+            Bundle bundle = new Bundle();
+            bundle.putLong("id", item.getId());
+            bundle.putLong("duration", item.getDuration());
+            bundle.putString("title", item.getTitle());
+            bundle.putString("displayName", item.getDisplayName());
+            intent.putExtras(bundle);
+
+            getActivity().startService(intent);
+            getActivity().startActivity(new Intent(getActivity(), PlayActivity.class));
+        }
     }
 
     void onItemLongClick(View view,int position){
-        Toast.makeText(getActivity(), "longClick " + position, Toast.LENGTH_LONG).show();
+//        Toast.makeText(getActivity(), "longClick " + position, Toast.LENGTH_LONG).show();
+        if(!isNeedShowSelectBox){
+            isNeedShowSelectBox = true;
+            selectedStatus = new boolean[itemList.size()];
+            selectedItemsCount = 0;
+            adapter.notifyDataSetChanged();
+            showSelectPopupWindow();
+            showOperatePopupWindow();
+            setSelectNumber();
+        }
+    }
+
+    void setSelectNumber(){
+        String sAgeFormat = getResources().getString(R.string.select_items_count);
+        String sFinalAge = String.format(sAgeFormat, selectedItemsCount);
+        selectNumber.setText(sFinalAge);
+    }
+
+    void showSelectPopupWindow(){
+        if(selectPopupWindow == null){
+            View layout =  LayoutInflater.from(getActivity()).inflate(R.layout.select_popup_window_song_list, null);
+            selectAll = (Button) layout.findViewById(R.id.select_all);
+            selectAll.setOnClickListener(this);
+            selectOthers = (Button) layout.findViewById(R.id.select_others);
+            selectOthers.setOnClickListener(this);
+            selectCancel = (Button) layout.findViewById(R.id.select_cancel);
+            selectCancel.setOnClickListener(this);
+            selectNumber = (Button) layout.findViewById(R.id.select_number);
+            Log.d(TAG, "showPopupWindow layout " + layout);
+            selectPopupWindow = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            selectPopupWindow.setTouchable(true);
+            selectPopupWindow.setTouchInterceptor(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    Log.d(TAG, "onTouch ");
+                    return false;
+                }
+            });
+//            selectPopupWindow.setBackgroundDrawable(
+//                    new ColorDrawable(getResources().getDrawable(R.color.select_popup_window_background));
+        }
+
+        selectPopupWindow.showAtLocation(recyclerView, Gravity.NO_GRAVITY, 0, getStatusBarHeight());
+    }
+
+    void showOperatePopupWindow(){
+        if(operatePopupWindow == null){
+            View layout =  LayoutInflater.from(getActivity()).inflate(R.layout.operate_popup_window_song_list, null);
+            addToPlaylist = (Button) layout.findViewById(R.id.add_to_playlist);
+            addToPlaylist.setOnClickListener(this);
+            remove = (Button) layout.findViewById(R.id.remove);
+            remove.setOnClickListener(this);
+            more = (Button) layout.findViewById(R.id.more);
+            more.setOnClickListener(this);
+            Log.d(TAG, "showPopupWindow layout " + layout);
+            operatePopupWindow = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            operatePopupWindow.setTouchable(true);
+            operatePopupWindow.setTouchInterceptor(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    Log.d(TAG, "onTouch ");
+                    return false;
+                }
+            });
+//            operatePopupWindow.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.song_list_background, null)));
+        }
+
+        operatePopupWindow.showAtLocation(recyclerView, Gravity.BOTTOM, 0, 0);
+    }
+
+    private int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+
+        Log.d(TAG, "getStatusBarHeight result " + result);
+        return result;
+    }
+
+    void selectAll(){
+        Log.d(TAG, "selectAll ");
+        int length = selectedStatus.length;
+        for(int i = 0; i < length; i++){
+            selectedStatus[i] = true;
+        }
+        adapter.notifyDataSetChanged();
+        selectedItemsCount = length;
+        setSelectNumber();
+    }
+    
+    void selectOthers(){
+        Log.d(TAG, "selectOthers ");
+        int length = selectedStatus.length;
+        for(int i = 0; i < length; i++){
+            selectedStatus[i] = !selectedStatus[i];
+        }
+        adapter.notifyDataSetChanged();
+        selectedItemsCount = length - selectedItemsCount;
+        setSelectNumber();
+    }
+
+    /**
+     * */
+    void dismissPopupWindows(){
+        Log.d(TAG, "dismissPopupWindows ");
+        isNeedShowSelectBox = false;
+        selectedStatus = null;
+        if(null != operatePopupWindow && operatePopupWindow.isShowing()) {
+            operatePopupWindow.dismiss();
+        }
+
+        if(null != selectPopupWindow && selectPopupWindow.isShowing()) {
+            selectPopupWindow.dismiss();
+        }
+        adapter.notifyDataSetChanged();
     }
 
     public static SongListFragment newInstance(Context context,Bundle bundle) {
@@ -70,6 +209,17 @@ public class SongListFragment extends android.support.v4.app.Fragment {
     public void onEvent(SearchEvent event) {
         Log.d(TAG, "onEvent SearchEvent " + event.searchText + " " + event.isNeedQuery);
         filterData(event.searchText);
+    }
+
+    @Override
+    public boolean handleBackPressed() {
+        super.handleBackPressed();
+        if(isNeedShowSelectBox){
+            dismissPopupWindows();
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -133,6 +283,45 @@ public class SongListFragment extends android.support.v4.app.Fragment {
         //        adapter.notifyDataSetChanged();
     }
 
+    @Override
+    public void onClick(View v) {
+        if(v == selectAll){
+            selectAll();
+        }else if(v == selectOthers){
+            selectOthers();
+        }else if(v == selectCancel){
+            dismissPopupWindows();
+        }else if(v == addToPlaylist){
+            addToPlaylist();
+        }else if(v == remove){
+            remove();
+        } else if(v == more){
+            more();
+        }
+    }
+
+    void addToPlaylist(){
+        Log.d(TAG, "addToPlaylist ");   
+    }
+
+    void remove(){
+        Log.d(TAG, "remove ");  
+    }
+
+    void more(){
+        Log.d(TAG, "more ");
+    }
+
+//    @Override
+//    public boolean onKey(View v, int keyCode, KeyEvent event) {
+//        Log.d(TAG, "onKey keyCode " + keyCode);
+//        if(isNeedShowSelectBox && keyCode == KeyEvent.KEYCODE_BACK){
+//            dismissPopupWindows();
+////            return true;
+//        }
+//        return false;
+//    }
+
     public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHolder> {
 
         private Context mContext;
@@ -155,6 +344,15 @@ public class SongListFragment extends android.support.v4.app.Fragment {
             final View view = holder.mView;
             TextView textView = (TextView)view.findViewById(R.id.text_view_song_list);
             textView.setText(itemList.get(position).getDisplayName());
+            CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkbox);
+            checkBox.setClickable(false);
+            if(isNeedShowSelectBox){
+                checkBox.setVisibility(View.VISIBLE);
+//                Log.d(TAG, "onBindViewHolder isChecked() " + checkBox.isChecked() + " " + position);
+                checkBox.setChecked(selectedStatus[position]);
+            }else{
+                checkBox.setVisibility(View.INVISIBLE);
+            }
             holder.position = position;
         }
 
@@ -190,123 +388,4 @@ public class SongListFragment extends android.support.v4.app.Fragment {
 
 }
 
-
-/**
- * Author: wangjie
- * Email: tiantian.china.2@gmail.com
- * Date: 1/17/15.
- */
-//public class PersonAdapter extends RecyclerView.Adapter {
-//    public static interface OnRecyclerViewListener {
-//        void onItemClick(int position);
-//        boolean onItemLongClick(int position);
-//    }
-//
-//    private OnRecyclerViewListener onRecyclerViewListener;
-//
-//    public void setOnRecyclerViewListener(OnRecyclerViewListener onRecyclerViewListener) {
-//        this.onRecyclerViewListener = onRecyclerViewListener;
-//    }
-//
-//    private static final String TAG = PersonAdapter.class.getSimpleName();
-//    private List<Person> list;
-//
-//    public PersonAdapter(List<Person> list) {
-//        this.list = list;
-//    }
-//
-//    @Override
-//    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-//        Logger.d(TAG, "onCreateViewHolder, i: " + i);
-//        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.recycler_view_test_item_person, null);
-//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//        view.setLayoutParams(lp);
-//        return new PersonViewHolder(view);
-//    }
-//
-//    @Override
-//    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
-//        Logger.d(TAG, "onBindViewHolder, i: " + i + ", viewHolder: " + viewHolder);
-//        PersonViewHolder holder = (PersonViewHolder) viewHolder;
-//        holder.position = i;
-//        Person person = list.get(i);
-//        holder.nameTv.setText(person.getName());
-//        holder.ageTv.setText(person.getAge() + "岁");
-//    }
-//
-//    @Override
-//    public int getItemCount() {
-//        return list.size();
-//    }
-//
-//    class PersonViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener
-//    {
-//        public View rootView;
-//        public TextView nameTv;
-//        public TextView ageTv;
-//        public int position;
-//
-//        public PersonViewHolder(View itemView) {
-//            super(itemView);
-//            nameTv = (TextView) itemView.findViewById(R.id.recycler_view_test_item_person_name_tv);
-//            ageTv = (TextView) itemView.findViewById(R.id.recycler_view_test_item_person_age_tv);
-//            rootView = itemView.findViewById(R.id.recycler_view_test_item_person_view);
-//            rootView.setOnClickListener(this);
-//            rootView.setOnLongClickListener(this);
-//        }
-//
-//        @Override
-//        public void onClick(View v) {
-//            if (null != onRecyclerViewListener) {
-//                onRecyclerViewListener.onItemClick(position);
-//            }
-//        }
-//
-//        @Override
-//        public boolean onLongClick(View v) {
-//            if(null != onRecyclerViewListener){
-//                return onRecyclerViewListener.onItemLongClick(position);
-//            }
-//            return false;
-//        }
-//    }
-//
-//}
-
-//@Override
-//public View getView(int position, View convertView, ViewGroup parent) {
-//    ViewHolder holder;
-//    if(null == convertView){
-//        holder = new ViewHolder();
-//        LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        convertView = mInflater.inflate(R.layout.item, null);
-//        holder.btn = (Button) convertView.findViewById(R.id.btn);
-//        holder.tv = (TextView) convertView.findViewById(R.id.tv);
-//        holder.iv = (TextView) convertView.findViewById(R.id.iv);
-//
-//        convertView.setTag(holder);
-//    }else{
-//        holder = (ViewHolder) convertView.getTag();
-//    }
-//    final HashMap<String, Object> map = list.get(position);
-//
-//    holder.iv.setImageResource(Integer.valueOf(map.get("iv").toString()));
-//    holder.tv.setText(map.get("tv").toString());
-//
-//    holder.btn.setOnClickListener(new View.OnClickListener() {
-//        @Override
-//        public void onClick(View v) {
-//            Toast.makeText(context, map.get("btn").toString(), Toast.LENGTH_SHORT).show();
-//        }
-//    });
-//
-//    return convertView;
-//}
-
-//class ViewHolder{
-//    Button btn;
-//    ImageView iv;
-//    TextView tv;
-//
-//}
 

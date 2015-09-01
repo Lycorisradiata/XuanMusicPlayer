@@ -2,7 +2,6 @@ package com.jw.cool.xuanmusicplayer;
 
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -21,10 +20,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
+import com.jw.cool.xuanmusicplayer.fragments.BaseFragment;
 import com.jw.cool.xuanmusicplayer.fragments.SongListFragment;
 
 import java.util.ArrayList;
@@ -248,7 +247,12 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-    
-    
+
+    @Override
+    public void onBackPressed() {
+        if(!((BaseFragment)fragmentsList.get(viewPager.getCurrentItem())).handleBackPressed()){
+            super.onBackPressed();
+        }
+    }
 }
 

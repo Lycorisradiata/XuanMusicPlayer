@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/select_popup_window_background"
+    >
+    <Button
+        style="@style/PopupWindowButton"
+        android:id="@+id/add_to_playlist"
+        android:text="@string/add_to_playlist" />
+    <Button
+        style="@style/PopupWindowButton"
+        android:id="@+id/remove"
+        android:text="@string/remove" />
+    <Button
+        style="@style/PopupWindowButton"
+        android:id="@+id/more"
+        android:text="@string/more" />
+</LinearLayout>

@@ -22,4 +22,13 @@
         <item name="android:windowBackground">@color/abc_primary_text_material_dark</item>
     </style>
 
+    <style name="PopupWindowButton">
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:background">@drawable/select_button_background</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_marginRight">5dp</item>
+    </style>
+
 </resources>

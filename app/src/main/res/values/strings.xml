@@ -15,4 +15,15 @@
     <string name="copy">copy</string>
     <string name="cancel">copy</string>
     <string name="success_copy">copy</string>
+
+    <string name="select_items_count">已选择%1$d项</string>
+    <string name="select_cancel">取消</string>
+    <string name="select_others">反选</string>
+    <string name="select_all">全选</string>
+
+    <string name="remove">删除</string>
+    <string name="more">更多</string>
+    <string name="add_to_playlist">添加到播放列表</string>
+
+
 </resources>
