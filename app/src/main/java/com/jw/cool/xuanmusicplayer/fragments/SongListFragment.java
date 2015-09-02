@@ -1,8 +1,10 @@
 package com.jw.cool.xuanmusicplayer.fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
@@ -20,6 +22,7 @@ import android.widget.TextView;
 
 import com.jw.cool.xuanmusicplayer.PlayActivity;
 import com.jw.cool.xuanmusicplayer.R;
+import com.jw.cool.xuanmusicplayer.coreservice.MediaInfo;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
@@ -32,9 +35,9 @@ import de.greenrobot.event.EventBus;
 public class SongListFragment extends BaseFragment
         implements View.OnClickListener{
     final String TAG = "SongListFragment";
-    List<MusicRetriever.Item> itemList = new ArrayList<MusicRetriever.Item>();
+    List<MediaInfo> itemList = new ArrayList<>();
 	Adapter adapter;
-    MusicRetriever mRetriever;
+//    MusicRetriever mRetriever;
     Button selectAll,  selectOthers, selectCancel, selectNumber;
     Button addToPlaylist, remove, more;
     boolean isNeedShowSelectBox;
@@ -57,8 +60,8 @@ public class SongListFragment extends BaseFragment
         }else{
             Intent intent = new Intent();
             intent.setAction(MusicService.ACTION_PLAY);
-            MusicRetriever.Item item = itemList.get(position);
-            MusicRetriever.setCurrentPos(item);
+            MediaInfo item = itemList.get(position);
+            MusicRetriever.getInstance().setCurrentPos(item);
             Bundle bundle = new Bundle();
             bundle.putLong("id", item.getId());
             bundle.putLong("duration", item.getDuration());
@@ -228,10 +231,10 @@ public class SongListFragment extends BaseFragment
      */
     private void filterData(String filterStr){
 //        Log.d(TAG, "filterData filterStr " + filterStr);
-        itemList = MusicRetriever.getItems();
+        itemList = MusicRetriever.getInstance().getItems();
         if(!TextUtils.isEmpty(filterStr)){
-            List<MusicRetriever.Item> templist = new ArrayList<MusicRetriever.Item>();
-            for(MusicRetriever.Item item : itemList){
+            List<MediaInfo> templist = new ArrayList<MediaInfo>();
+            for(MediaInfo item : itemList){
                 String name = item.getDisplayName();
 //                Log.d(TAG, "filterData name " + name);
                 if(name.indexOf(filterStr) != -1){
@@ -249,29 +252,12 @@ public class SongListFragment extends BaseFragment
     	// TODO Auto-generated method stub
     	super.onStart();
         Log.d(TAG, "onStart test");
-        recyclerView.setHasFixedSize(true);
+        recyclerView.setHasFixedSize(true);//使RecyclerView保持固定的大小,这样会提高RecyclerView的性能。
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
         adapter = new SongListAdapter(getActivity());
         recyclerView.setAdapter(adapter);
-        mRetriever = new MusicRetriever(getActivity().getContentResolver());
-//        if()
-//        (new PrepareMusicRetrieverTask(mRetriever,this)).execute();
-//        如上述代码：
-//
-//    	Line1: 使RecyclerView保持固定的大小,这样会提高RecyclerView的性能。
-//
-//    	Line3: LinearLayoutManager，如果你需要显示的是横向滚动的列表或者竖直滚动的列表，则使用这个LayoutManager。显然，我们要实现的是ListView的效果，所以需要使用它。生成这个LinearLayoutManager之后可以设置他滚动的方向，默认竖直滚动，所以这里没有显式地设置。
-//
-//    	Line6: 初始化数据源。
-//
-//    	Line7～9: 跟ListView一样，需要设置RecyclerView的Adapter，但是这里的Adapter跟ListView使用的Adapter不一样，这里的Adapter需要继承RecyclerView.Adapter，需要实现3个方法：
-//
-//    	　　- onCreateViewHolder()
-//
-//    	　　- onBindViewHolder()
-//
-//    	　　- getItemCount()
+//        mRetriever = new MusicRetriever(getActivity().getContentResolver());
     }
 
     @Override
@@ -279,7 +265,7 @@ public class SongListFragment extends BaseFragment
         super.onActivityCreated(savedInstanceState);
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
         recyclerView.setAdapter(new SongListAdapter(getActivity()));
-        itemList = MusicRetriever.getItems();
+        itemList = MusicRetriever.getInstance().getItems();
         //        adapter.notifyDataSetChanged();
     }
 
@@ -292,7 +278,7 @@ public class SongListFragment extends BaseFragment
         }else if(v == selectCancel){
             dismissPopupWindows();
         }else if(v == addToPlaylist){
-            addToPlaylist();
+            showPlaylistDialog();
         }else if(v == remove){
             remove();
         } else if(v == more){
@@ -300,9 +286,44 @@ public class SongListFragment extends BaseFragment
         }
     }
 
-    void addToPlaylist(){
-        Log.d(TAG, "addToPlaylist ");   
+    void addToPlaylist(int pos){
+        Log.d(TAG, "addToPlaylist ");
+//        if(int pos)
+//        Log.d(TAG, "addToPlaylist ");
+//        ContentValues cv = new ContentValues();
+//        cv.put(MediaStore.Audio.Playlists.NAME, );
+//        getActivity().getContentResolver().insert(
+//                MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, cv);
+        MusicRetriever.getInstance().getPlaylist();
+
     }
+
+    void showPlaylistDialog(){
+//        LayoutInflater inflater = getLayoutInflater();
+//           View layout = inflater.inflate(R.layout.dialog,
+//                   (ViewGroup) findViewById(R.id.dialog));
+//           new AlertDialog.Builder(this).setTitle("自定义布局").setView(layout)
+//             .setPositiveButton("确定", null)
+//            .setNegativeButton("取消", null).show();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setIcon(R.drawable.ic_launcher);
+        builder.setTitle("选择一个城市");
+        //    指定下拉列表的显示数据
+        final String[] cities = {"广州", "上海", "北京", "香港", "澳门"};
+        //    设置一个下拉的列表选择项
+        builder.setItems(cities, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                addToPlaylist(which);
+            }
+        });
+        builder.show();
+    }
+
+
 
     void remove(){
         Log.d(TAG, "remove ");  
@@ -312,21 +333,8 @@ public class SongListFragment extends BaseFragment
         Log.d(TAG, "more ");
     }
 
-//    @Override
-//    public boolean onKey(View v, int keyCode, KeyEvent event) {
-//        Log.d(TAG, "onKey keyCode " + keyCode);
-//        if(isNeedShowSelectBox && keyCode == KeyEvent.KEYCODE_BACK){
-//            dismissPopupWindows();
-////            return true;
-//        }
-//        return false;
-//    }
-
     public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHolder> {
-
         private Context mContext;
-
-
         public SongListAdapter(Context mContext) {
             this.mContext = mContext;
         }
@@ -335,7 +343,6 @@ public class SongListFragment extends BaseFragment
         public SongListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view =
                     LayoutInflater.from(parent.getContext()).inflate(R.layout.item_song_list, parent, false);
-
             return new ViewHolder(view);
         }
 
@@ -385,6 +392,8 @@ public class SongListFragment extends BaseFragment
             }
         }
     }
+
+
 
 }
 

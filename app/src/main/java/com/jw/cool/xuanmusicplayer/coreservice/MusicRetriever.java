@@ -16,10 +16,13 @@
 
 package com.jw.cool.xuanmusicplayer.coreservice;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
-import android.content.ContentUris;
+import android.content.Context;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -37,18 +40,114 @@ import java.util.Random;
  */
 public class MusicRetriever {
     final static String TAG = "MusicRetriever";
+    private static MusicRetriever instance;
+    private  Context context;
+    ContentResolver contentResolver;
+    List<MediaInfo> items;
+    int currentPos;
+    int playMode;
+    Random random ;
+    private MusicRetriever(Context context){
+        this.context = context;
+        contentResolver = context.getContentResolver();
+        items = new ArrayList<MediaInfo>();
+    }
 
-    ContentResolver mContentResolver;
+    public static void initInstance(Context context){
+        if(context != null && instance == null){
+            synchronized (MusicRetriever.class){
+                instance = new MusicRetriever(context);
+            }
+        }
+    }
 
-    // the items (songs) we have queried
-    static List<Item> mItems = new ArrayList<Item>();
-    static int currentPos;
-    static int playMode;
+    public static MusicRetriever getInstance(){
+        return instance;
+    }
 
-    static Random mRandom = new Random();
+    public List<PlayList> getPlaylist(){
+        List<PlayList> list = new ArrayList<>();
+        Uri uri = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
+        Cursor cur = contentResolver.query(uri, null, null, null, null);
+        if (cur == null || !cur.moveToFirst()) {
+            Log.d(TAG, "getPlaylist failed");
+            return list;
+        }
 
-    public MusicRetriever(ContentResolver cr) {
-        mContentResolver = cr;
+        int nameColumn = cur.getColumnIndex(MediaStore.Audio.Playlists.NAME);
+        int dataColumn = cur.getColumnIndex(MediaStore.Audio.Playlists.DATA);
+        int dateAddColumn = cur.getColumnIndex(MediaStore.Audio.Playlists.DATE_ADDED);
+        int dateModifyColumn = cur.getColumnIndex(MediaStore.Audio.Playlists.DATE_MODIFIED);
+        int countColumn = cur.getColumnIndex(MediaStore.Audio.Playlists._COUNT);
+        int idColumn = cur.getColumnIndex(MediaStore.Audio.Playlists._ID);
+
+        do{
+            PlayList item = new PlayList(cur.getLong(idColumn),
+                                        cur.getString(nameColumn),
+                                        cur.getString(dataColumn),
+                                        cur.getLong(dateAddColumn),
+                                        cur.getLong(dateModifyColumn),
+                                        cur.getInt(countColumn));
+            list.add(item);
+        }while (cur.moveToNext());
+        return list;
+    }
+
+    public void addToPlaylist(List<PlaylistItem> list) {
+        Log.d(TAG, "addToPlaylist ");
+        ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+        for(PlaylistItem item:list){
+            Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", item.playListId);
+            ops.add(ContentProviderOperation.newInsert(uri)
+                    .withValue(MediaStore.Audio.Playlists.Members.PLAY_ORDER, item.playOrder)
+                    .withValue(MediaStore.Audio.Playlists.Members.AUDIO_ID, item.audioId)
+                    .withYieldAllowed(true)
+                    .build());
+        }
+
+        try {
+            getContentResolver().applyBatch(MediaStore.AUTHORITY, ops);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        } catch (OperationApplicationException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    static class PlayList{
+        long id;
+        String name;
+        String data;
+        long dateAdd;
+        long dateModified;
+        int count;
+
+        public PlayList(long id, String name, String data, long dateAdd, long dateModified, int count) {
+            this.id = id;
+            this.name = name;
+            this.data = data;
+            this.dateAdd = dateAdd;
+            this.dateModified = dateModified;
+            this.count = count;
+        }
+    }
+
+    static class PlaylistItem{
+        long playListId;
+        long audioId;
+        long playOrder;
+        long _Id;
+        String contentDirectory;
+
+        public PlaylistItem(long playListId, long audioId, long playOrder, long _Id, String contentDirectory) {
+            this.playListId = playListId;
+            this.audioId = audioId;
+            this.playOrder = playOrder;
+            this._Id = _Id;
+            this.contentDirectory = contentDirectory;
+        }
     }
 
     /**
@@ -62,7 +161,7 @@ public class MusicRetriever {
 
         // Perform a query on the content resolver. The URI we're passing specifies that we
         // want to query for all audio media on external storage (e.g. SD card)
-        Cursor cur = mContentResolver.query(uri, null,
+        Cursor cur = contentResolver.query(uri, null,
                 MediaStore.Audio.Media.IS_MUSIC + " = 1", null, null);
         Log.i(TAG, "Query finished. " + (cur == null ? "Returned NULL." : "Returned a cursor."));
 
@@ -91,14 +190,10 @@ public class MusicRetriever {
         int albumArt = cur.getColumnIndex(MediaStore.Audio.AlbumColumns.ALBUM_ART);
         Log.i(TAG, "cur.getCount() : " + cur.getCount());
 
-        // add each song to mItems
+        // add each song to items
         do {
             String displayName = HandlerString.getFileNameNoEx(cur.getString(fileName));
-//            String albumArts = cur.getString(albumArt);
-//            Log.d(TAG, "prepare albumArts " + albumArts);
-//            Log.i(TAG, "ID: " + cur.getString(idColumn) + " Title: " + cur.getString(titleColumn)
-//            + " DISPLAY_NAME " + cur.getString(fileName));
-            mItems.add(new Item(
+            items.add(new MediaInfo(
                     cur.getLong(idColumn),
                     cur.getString(artistColumn),
                     cur.getString(titleColumn),
@@ -113,40 +208,49 @@ public class MusicRetriever {
     }
 
     public ContentResolver getContentResolver() {
-        return mContentResolver;
+        return contentResolver;
     }
 
-    /** Returns a random Item. If there are no items available, returns null. */
-    public Item getRandomItem() {
-        if (mItems.size() <= 0) return null;
-        return mItems.get(mRandom.nextInt(mItems.size()));
+    /** Returns a random MediaInfo. If there are no items available, returns null. */
+    public MediaInfo getRandomItem() {
+        if (items.size() <= 0) return null;
+        return items.get(getRandomPos());
     }
 
-    public static List<Item> getItems(){
-        return mItems;
+    int getRandomPos(){
+        if(random == null){
+            random = new Random();
+        }
+
+        return random.nextInt(items.size());
     }
 
-    public static Item getCurrentItem(){
-        return mItems.get(currentPos);
+
+    public List<MediaInfo> getItems(){
+        return items;
     }
 
-    public static Item getNextItem(){
-        Item item = null;
+    public MediaInfo getCurrentItem(){
+        return items.get(currentPos);
+    }
+
+    public MediaInfo getNextItem(){
+        MediaInfo item = null;
         switch (playMode){
             case PlayMode.all_order:
-                if(currentPos < mItems.size() - 1)
-                item = mItems.get(++currentPos);
+                if(currentPos < items.size() - 1)
+                item = items.get(++currentPos);
                 break;
             case PlayMode.all_repeat:
-                currentPos = (++currentPos)%mItems.size();
-                item = mItems.get(currentPos);
+                currentPos = (++currentPos)%items.size();
+                item = items.get(currentPos);
                 break;
             case PlayMode.random:
-                currentPos = mRandom.nextInt(mItems.size());
-                item = mItems.get(currentPos);
+                currentPos = getRandomPos();
+                item = items.get(currentPos);
                 break;
             case PlayMode.one_repeat:
-                item = mItems.get(currentPos);
+                item = items.get(currentPos);
                 break;
             case PlayMode.one_once:
                 break;
@@ -155,23 +259,23 @@ public class MusicRetriever {
         return item;
     }
 
-    public static Item getPreviousItem(){
-        Item item = null;
+    public MediaInfo getPreviousItem(){
+        MediaInfo item = null;
         switch (playMode){
             case PlayMode.all_order:
                 if(currentPos > 0)
-                    item = mItems.get(--currentPos);
+                    item = items.get(--currentPos);
                 break;
             case PlayMode.all_repeat:
-                currentPos = (--currentPos + mItems.size())%mItems.size();
-                item = mItems.get(currentPos);
+                currentPos = (--currentPos + items.size())%items.size();
+                item = items.get(currentPos);
                 break;
             case PlayMode.random:
-                currentPos = mRandom.nextInt(mItems.size());
-                item = mItems.get(currentPos);
+                currentPos = getRandomPos();
+                item = items.get(currentPos);
                 break;
             case PlayMode.one_repeat:
-                item = mItems.get(currentPos);
+                item = items.get(currentPos);
                 break;
             case PlayMode.one_once:
                 break;
@@ -183,81 +287,29 @@ public class MusicRetriever {
 
 
 
-    public static void setCurrentPos(int pos){
+    public void setCurrentPos(int pos){
         currentPos = pos;
     }
 
-    public static void setCurrentPos(Item item){
+    public void setCurrentPos(MediaInfo item){
         Log.d(TAG, "setCurrentPos item " + item.getDisplayName());
-        currentPos = mItems.indexOf(item);
+        currentPos = items.indexOf(item);
         currentPos = currentPos == -1 ? 0 : currentPos;
     }
 
 
-    public static int getCurrentPos(){
+    public  int getCurrentPos(){
         return currentPos;
     }
 
-    public static void setPlayMode(int mode){
+    public  void setPlayMode(int mode){
         playMode = mode;
     }
 
-    public static int getPlayMode(){
+    public  int getPlayMode(){
         return playMode;
     }
 
 
-    public static class Item {
-        long id;
-        String artist;
-        String title;
-        String album;
-        long duration;
-        String displayName;
-        long albumId;
 
-        public Item(long id, String artist, String title, String album,
-                    long duration, String displayName, long albumId) {
-            this.id = id;
-            this.artist = artist;
-            this.title = title;
-            this.album = album;
-            this.duration = duration;
-            this.displayName = displayName;
-            this.albumId = albumId;
-        }
-
-        public long getId() {
-            return id;
-        }
-
-        public String getArtist() {
-            return artist;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public String getAlbum() {
-            return album;
-        }
-
-        public long getDuration() {
-            return duration;
-        }
-        public String getDisplayName() {
-            return displayName;
-        }
-
-        public long getAlbumId() {
-            return albumId;
-        }
-
-
-        public Uri getURI() {
-            return ContentUris.withAppendedId(
-                    android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
-        }
-    }
 }

@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.jw.cool.xuanmusicplayer.coreservice.MediaInfo;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplayer.events.CompletionEvent;
@@ -82,7 +83,7 @@ public class PlayActivity extends Activity implements View.OnClickListener{
     public void onEventMainThread(ProcessEvent event) {
         Log.d(TAG, "onEventMainThread isNeedRefreshMediaInfo " + isNeedRefreshMediaInfo);
         if(isNeedRefreshMediaInfo){
-            refresh(MusicRetriever.getCurrentItem());
+            refresh(MusicRetriever.getInstance().getCurrentItem());
         }
         currentTime.setText(HandlerTime.seconds2HHMMSS(event.currentPos / 1000));
         seekBar.setProgress(event.currentPos * 100 / event.totalMilliSeconds);
@@ -95,7 +96,7 @@ public class PlayActivity extends Activity implements View.OnClickListener{
     }
 
 
-    void refresh(MusicRetriever.Item item){
+    void refresh(MediaInfo item){
         Log.d(TAG, "refresh item " + isNeedRefreshMediaInfo);
         if(item != null){
             song.setText(item.getDisplayName());
@@ -136,20 +137,4 @@ public class PlayActivity extends Activity implements View.OnClickListener{
             Log.d(TAG, "onClick intent " + intent.getAction());
         }
     }
-
-//    intent.setAction(MusicService.ACTION_PLAY);
-//    MusicRetriever.Item item = itemList.get(position);
-//    Bundle bundle = new Bundle();
-////        Item item = new Item(bundle.getLong("id"),
-////                strEmpty ,
-////                bundle.getString("title"),
-////                strEmpty,
-////                bundle.getLong("duration"),
-////                bundle.getString("displayName")
-//    bundle.putLong("id", item.getId());
-//    bundle.putLong("duration", item.getDuration());
-//    bundle.putString("title", item.getTitle());
-//    bundle.putString("displayName", item.getDisplayName());
-//    intent.putExtras(bundle);
-//    getActivity().startService(intent);
 }

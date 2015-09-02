@@ -43,7 +43,6 @@ import android.widget.Toast;
 
 import com.jw.cool.xuanmusicplayer.MainActivity;
 import com.jw.cool.xuanmusicplayer.R;
-import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever.Item;
 import com.jw.cool.xuanmusicplayer.events.CompletionEvent;
 import com.jw.cool.xuanmusicplayer.events.ProcessEvent;
 
@@ -148,7 +147,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
     // Our instance of our MusicRetriever, which handles scanning for media and
     // providing titles and URIs as we need.
-    MusicRetriever mRetriever;
+//    MusicRetriever mRetriever;
 
     // our RemoteControlClient object, which will use remote control APIs available in
     // SDK level >= 14, if they're available.
@@ -210,8 +209,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
 //         Create the retriever and start an asynchronous task that will prepare it.
-        mRetriever = new MusicRetriever(getContentResolver());
-        (new PrepareMusicRetrieverTask(mRetriever,this)).execute();
+        (new PrepareMusicRetrieverTask(MusicRetriever.getInstance(),this)).execute();
 
 
         // create the Audio Focus Helper, if the Audio Focus feature is available (SDK 8 or above)
@@ -245,7 +243,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         Log.d(TAG, "action == " + action);
 
 
-//        Item(long id, String artist, String title, String album, long duration, String displayName)
+//        MediaInfo(long id, String artist, String title, String album, long duration, String displayName)
         if(action != null){
 
             switch (action) {
@@ -255,7 +253,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                 case ACTION_PLAY:
                     Bundle bundle = intent.getExtras();
                     String strEmpty = "";
-                    Item item = new Item(bundle.getLong("id"),
+                    MediaInfo item = new MediaInfo(bundle.getLong("id"),
                             strEmpty ,
                             bundle.getString("title"),
                             strEmpty,
@@ -295,7 +293,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     }
 
     private void processPreviousRequest() {
-        Item item = getPreviousItem();
+        MediaInfo item = getPreviousItem();
         Log.d(TAG, "processPreviousRequest item " + item);
         if(item != null)
         playNextSong(null, item);
@@ -310,7 +308,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         }
     }
 
-    void processPlayRequest(Item item) {
+    void processPlayRequest(MediaInfo item) {
         Log.d(TAG, "processPlayRequest  mState " + mState);
         if (mState == State.Retrieving) {
             // If we are still retrieving media, just set the flag to start playing when we're
@@ -490,12 +488,12 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
      * manualUrl is non-null, then it specifies the URL or path to the song that will be played
      * next.
      */
-    void playNextSong(String manualUrl, Item item) {
+    void playNextSong(String manualUrl, MediaInfo item) {
         mState = State.Stopped;
         relaxResources(false); // release everything except MediaPlayer
 
         try {
-            Item playingItem;
+            MediaInfo playingItem;
             if (manualUrl != null) {
                 // set the source of the media player to a manual URL or path
                 createMediaPlayerIfNeeded();
@@ -503,7 +501,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                 mPlayer.setDataSource(manualUrl);
                 mIsStreaming = manualUrl.startsWith("http:") || manualUrl.startsWith("https:");
 
-                playingItem = new Item(0, null, manualUrl, null, 0, null, 0);
+                playingItem = new MediaInfo(0, null, manualUrl, null, 0, null, 0);
             } else {
                 mIsStreaming = false; // playing a locally available song
 
@@ -606,12 +604,12 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         playNextSong(null, null);
     }
 
-    Item getNextItem(){
-        return MusicRetriever.getNextItem();
+    MediaInfo getNextItem(){
+        return MusicRetriever.getInstance().getNextItem();
     }
 
-    Item getPreviousItem(){
-        return MusicRetriever.getPreviousItem();
+    MediaInfo getPreviousItem(){
+        return MusicRetriever.getInstance().getPreviousItem();
     }
 
     /** Called when media player is done preparing. */
@@ -707,8 +705,8 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     }
 
     public void onMusicRetrieverPrepared() {
-//        List<Item> itemList = mRetriever.getItems();
-//        for (Item item:itemList){
+//        List<MediaInfo> itemList = mRetriever.getItems();
+//        for (MediaInfo item:itemList){
 //            Log.i(TAG, "ITEM " + item);
 //        }
         // Done retrieving!
