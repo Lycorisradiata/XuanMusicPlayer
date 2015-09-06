@@ -18,6 +18,7 @@ package com.jw.cool.xuanmusicplayer.coreservice;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
@@ -81,23 +82,45 @@ public class MusicRetriever {
         int countColumn = cur.getColumnIndex(MediaStore.Audio.Playlists._COUNT);
         int idColumn = cur.getColumnIndex(MediaStore.Audio.Playlists._ID);
 
+
         do{
-            PlayList item = new PlayList(cur.getLong(idColumn),
-                                        cur.getString(nameColumn),
-                                        cur.getString(dataColumn),
-                                        cur.getLong(dateAddColumn),
-                                        cur.getLong(dateModifyColumn),
-                                        cur.getInt(countColumn));
+            long id = cur.getLong(idColumn);
+            String name = cur.getString(nameColumn);
+            String data = cur.getString(dataColumn);
+            long dateadd = cur.getLong(dateAddColumn);
+            long datemodify = cur.getLong(dateModifyColumn);
+//            int count = cur.getInt(countColumn);
+            PlayList item = new PlayList(id,
+                    name,
+                    data,
+                    dateadd,
+                    datemodify,
+                    0);
             list.add(item);
         }while (cur.moveToNext());
+        for(PlayList item:list){
+            Log.d(TAG, "getPlaylist list " + item.toString());
+        }
+
         return list;
     }
 
-    public void addToPlaylist(List<PlaylistItem> list) {
+    public void addToPlaylist(List<PlaylistItem> list, long playlistId) {
         Log.d(TAG, "addToPlaylist ");
+        if(list.size() == 0){
+            return;
+        }
         ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+        Uri uri = null;
+        if(playlistId > 0){
+            uri = MediaStore.Audio.Playlists.Members.getContentUri("external", playlistId);
+        }
+
         for(PlaylistItem item:list){
-            Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", item.playListId);
+            if(playlistId < 0){
+                uri = MediaStore.Audio.Playlists.Members.getContentUri("external", item.playListId);
+            }
+
             ops.add(ContentProviderOperation.newInsert(uri)
                     .withValue(MediaStore.Audio.Playlists.Members.PLAY_ORDER, item.playOrder)
                     .withValue(MediaStore.Audio.Playlists.Members.AUDIO_ID, item.audioId)
@@ -114,40 +137,25 @@ public class MusicRetriever {
         }
     }
 
+    public long createPlaylist(String name){
+        long id = -1;
+        Log.d(TAG, "addToPlaylist ");
+        ContentValues cv = new ContentValues();
+        cv.put(MediaStore.Audio.Playlists.NAME, name);
+        getContentResolver().insert(
+                MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, cv);
 
-
-    static class PlayList{
-        long id;
-        String name;
-        String data;
-        long dateAdd;
-        long dateModified;
-        int count;
-
-        public PlayList(long id, String name, String data, long dateAdd, long dateModified, int count) {
-            this.id = id;
-            this.name = name;
-            this.data = data;
-            this.dateAdd = dateAdd;
-            this.dateModified = dateModified;
-            this.count = count;
+        List<PlayList> list = getPlaylist();
+        for(PlayList item:list){
+            if(item.getName().equals(name)){
+                id = item.getId();
+                Log.d(TAG, "createPlaylist match " + item.toString());
+                break;
+            }else{
+                Log.d(TAG, "createPlaylist " + item.toString());
+            }
         }
-    }
-
-    static class PlaylistItem{
-        long playListId;
-        long audioId;
-        long playOrder;
-        long _Id;
-        String contentDirectory;
-
-        public PlaylistItem(long playListId, long audioId, long playOrder, long _Id, String contentDirectory) {
-            this.playListId = playListId;
-            this.audioId = audioId;
-            this.playOrder = playOrder;
-            this._Id = _Id;
-            this.contentDirectory = contentDirectory;
-        }
+        return id;
     }
 
     /**

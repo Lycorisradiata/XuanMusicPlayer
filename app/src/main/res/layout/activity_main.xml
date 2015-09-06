@@ -26,7 +26,13 @@
 			        android:id="@+id/tabLayout"
 			        android:layout_width="match_parent"
 			        android:layout_height="wrap_content"
-			        app:layout_scrollFlags="scroll|enterAlways"/>
+                    app:layout_scrollFlags="scroll|enterAlways"/>
+            <!--不添加此布局，则会出现讲AppBarLayout滑出界面然后切换到另一个activity页面再切换回来时，
+                AppBarLayout显示为空白-->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"/>
+
             
 			</android.support.design.widget.AppBarLayout>
 			

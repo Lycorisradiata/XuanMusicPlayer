@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -25,12 +26,16 @@ import com.jw.cool.xuanmusicplayer.R;
 import com.jw.cool.xuanmusicplayer.coreservice.MediaInfo;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
+import com.jw.cool.xuanmusicplayer.coreservice.PlayList;
+import com.jw.cool.xuanmusicplayer.coreservice.PlaylistItem;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
+
+import static android.content.DialogInterface.*;
 
 public class SongListFragment extends BaseFragment
         implements View.OnClickListener{
@@ -45,6 +50,7 @@ public class SongListFragment extends BaseFragment
     PopupWindow operatePopupWindow;
     boolean[] selectedStatus;
     int selectedItemsCount;
+    List<PlayList> playLists;
 
     void onItemClick(View view,int position){
         if(isNeedShowSelectBox){
@@ -205,9 +211,10 @@ public class SongListFragment extends BaseFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         recyclerView = (RecyclerView) inflater.inflate(R.layout.fragment_song_list, container, false);
-        EventBus.getDefault().register(this);
         return recyclerView;
     }
+
+
 
     public void onEvent(SearchEvent event) {
         Log.d(TAG, "onEvent SearchEvent " + event.searchText + " " + event.isNeedQuery);
@@ -288,31 +295,68 @@ public class SongListFragment extends BaseFragment
 
     void addToPlaylist(int pos){
         Log.d(TAG, "addToPlaylist ");
-//        if(int pos)
-//        Log.d(TAG, "addToPlaylist ");
-//        ContentValues cv = new ContentValues();
-//        cv.put(MediaStore.Audio.Playlists.NAME, );
-//        getActivity().getContentResolver().insert(
-//                MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, cv);
-        MusicRetriever.getInstance().getPlaylist();
+        if(pos == 0){
+            showCreatePlaylistDialog();
+        }else{
+            MusicRetriever.getInstance().addToPlaylist(
+                    getPlaylistItemsNeedAdd(), playLists.get(pos + 1).getId());
+        }
+    }
 
+    List<PlaylistItem>  getPlaylistItemsNeedAdd(){
+        List<PlaylistItem> list = new ArrayList<>();
+        for(int i = 0; i < selectedStatus.length; i++){
+            if(selectedStatus[i]){
+                MediaInfo info = itemList.get(i);
+                PlaylistItem item = new PlaylistItem(-1, info.getId(), info.getId(), -1, "");
+                list.add(item);
+            }
+        }
+        return list;
+    }
+
+
+    void showCreatePlaylistDialog(){
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+           View layout = inflater.inflate(R.layout.dialog_create_playlist,
+                   null);
+        final EditText editText = (EditText) layout.findViewById(R.id.create_playlist);
+        OnClickListener listener = new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        long playlistId = MusicRetriever.getInstance().createPlaylist(editText.getText().toString());
+                        if(playlistId >= 0){
+                            MusicRetriever.getInstance().addToPlaylist(
+                                    getPlaylistItemsNeedAdd(), playlistId);
+                        }
+
+                        break;
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        break;
+                }
+            }
+        };
+           new AlertDialog.Builder(getActivity()).setTitle(R.string.create_playlist).setView(layout)
+             .setPositiveButton(R.string.ok, listener)
+            .setNegativeButton(R.string.cancel, listener).show();
     }
 
     void showPlaylistDialog(){
-//        LayoutInflater inflater = getLayoutInflater();
-//           View layout = inflater.inflate(R.layout.dialog,
-//                   (ViewGroup) findViewById(R.id.dialog));
-//           new AlertDialog.Builder(this).setTitle("自定义布局").setView(layout)
-//             .setPositiveButton("确定", null)
-//            .setNegativeButton("取消", null).show();
-
+        playLists = MusicRetriever.getInstance().getPlaylist();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setIcon(R.drawable.ic_launcher);
-        builder.setTitle("选择一个城市");
+        builder.setTitle(R.string.create_playlist);
         //    指定下拉列表的显示数据
-        final String[] cities = {"广州", "上海", "北京", "香港", "澳门"};
+        String[] arrayPlaylist = new String[playLists.size() + 1];
+        arrayPlaylist[0] = getResources().getString(R.string.create_playlist);
+        for(int i = 1; i < arrayPlaylist.length; i++){
+            arrayPlaylist[i] = playLists.get(i - 1).getName();
+        }
+
         //    设置一个下拉的列表选择项
-        builder.setItems(cities, new DialogInterface.OnClickListener()
+        builder.setItems(arrayPlaylist, new OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialog, int which)
