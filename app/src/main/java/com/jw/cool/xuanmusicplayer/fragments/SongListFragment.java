@@ -19,8 +19,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupWindow;
 
-import com.jw.cool.xuanmusicplayer.Adapters.OnSongListItemClickListener;
-import com.jw.cool.xuanmusicplayer.Adapters.SongListAdapter;
+import com.jw.cool.xuanmusicplayer.adapters.OnSongListItemClickListener;
+import com.jw.cool.xuanmusicplayer.adapters.SongListAdapter;
 import com.jw.cool.xuanmusicplayer.PlayActivity;
 import com.jw.cool.xuanmusicplayer.R;
 import com.jw.cool.xuanmusicplayer.coreservice.MediaInfo;

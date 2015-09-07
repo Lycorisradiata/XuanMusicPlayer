@@ -10,8 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.jw.cool.xuanmusicplayer.Adapters.OnSongListItemClickListener;
-import com.jw.cool.xuanmusicplayer.Adapters.SongListAdapter;
+import com.jw.cool.xuanmusicplayer.adapters.OnSongListItemClickListener;
+import com.jw.cool.xuanmusicplayer.adapters.SongListAdapter;
 import com.jw.cool.xuanmusicplayer.PlaylistActivity;
 import com.jw.cool.xuanmusicplayer.R;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;

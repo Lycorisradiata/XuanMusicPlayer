@@ -1,4 +1,4 @@
-package com.jw.cool.xuanmusicplayer.Adapters;
+package com.jw.cool.xuanmusicplayer.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
