@@ -44,14 +44,35 @@ public class MusicRetriever {
     private static MusicRetriever instance;
     private  Context context;
     ContentResolver contentResolver;
-    List<MediaInfo> items;
+    List<MediaInfo> allItems;
     int currentPos;
     int playMode;
+    boolean isPlaylistMode;
+    List<MediaInfo> playlistItems;
+
+    public boolean isRetrieverPrepared() {
+        return isRetrieverPrepared;
+    }
+
+    public void setIsRetrieverPrepared(boolean isRetrieverPrepared) {
+        this.isRetrieverPrepared = isRetrieverPrepared;
+    }
+
+    boolean isRetrieverPrepared;
+
+    public boolean isPlaylistMode() {
+        return isPlaylistMode;
+    }
+
+    public void setIsPlaylistMode(boolean isPlaylistMode) {
+        this.isPlaylistMode = isPlaylistMode;
+    }
+
     Random random ;
     private MusicRetriever(Context context){
         this.context = context;
         contentResolver = context.getContentResolver();
-        items = new ArrayList<MediaInfo>();
+        allItems = new ArrayList<>();
     }
 
     public static void initInstance(Context context){
@@ -105,12 +126,58 @@ public class MusicRetriever {
         return list;
     }
 
+    public List<MediaInfo> getPlaylistItems(long playlistId){
+        if(playlistItems == null){
+            playlistItems = new ArrayList<>();
+        }else{
+            playlistItems.clear();
+        }
+
+        if(playlistId <= 0){
+            return playlistItems;
+        }
+
+        Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", playlistId);
+        String[] showColumns = new String[]{MediaStore.Audio.Playlists.Members.AUDIO_ID,
+                MediaStore.Audio.Playlists.Members.ARTIST,
+                MediaStore.Audio.Playlists.Members.TITLE,
+                MediaStore.Audio.Playlists.Members.ALBUM,
+                MediaStore.Audio.Playlists.Members.DURATION,
+                MediaStore.Audio.Playlists.Members.DISPLAY_NAME,
+                MediaStore.Audio.Playlists.Members.ALBUM_ID};
+
+        Cursor cursor = getContentResolver().query(uri, showColumns,
+                MediaStore.Audio.Playlists.Members.PLAYLIST_ID + "=?",
+                new String[]{Long.toString(playlistId)},
+                null);
+        if(cursor == null || !cursor.moveToFirst()) {
+            Log.d(TAG, "getPlaylistItems failed!");
+            return playlistItems;
+        }
+
+        Log.d(TAG, "getPlaylistItems columns " + cursor.getColumnCount() + " " +cursor.getCount());
+
+        do{
+            long id = cursor.getLong(cursor.getColumnIndex(showColumns[0]));
+            String artist = cursor.getString(cursor.getColumnIndex(showColumns[1]));
+            String title = cursor.getString(cursor.getColumnIndex(showColumns[2]));
+            String album = cursor.getString(cursor.getColumnIndex(showColumns[3]));
+            long duration = cursor.getLong(cursor.getColumnIndex(showColumns[4]));
+            String displayName = cursor.getString(cursor.getColumnIndex(showColumns[5]));
+            long albumId = cursor.getLong(cursor.getColumnIndex(showColumns[6]));
+            MediaInfo item = new MediaInfo(id, artist, title, album, duration, displayName, albumId);
+            playlistItems.add(item);
+        }while (cursor.moveToNext());
+        cursor.close();
+        return playlistItems;
+    }
+
     public void addToPlaylist(List<PlaylistItem> list, long playlistId) {
         Log.d(TAG, "addToPlaylist ");
         if(list.size() == 0){
             return;
         }
-        ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+        ArrayList<ContentProviderOperation> ops = new ArrayList<>();
         Uri uri = null;
         if(playlistId > 0){
             uri = MediaStore.Audio.Playlists.Members.getContentUri("external", playlistId);
@@ -198,10 +265,10 @@ public class MusicRetriever {
         int albumArt = cur.getColumnIndex(MediaStore.Audio.AlbumColumns.ALBUM_ART);
         Log.i(TAG, "cur.getCount() : " + cur.getCount());
 
-        // add each song to items
+        // add each song to allItems
         do {
             String displayName = HandlerString.getFileNameNoEx(cur.getString(fileName));
-            items.add(new MediaInfo(
+            allItems.add(new MediaInfo(
                     cur.getLong(idColumn),
                     cur.getString(artistColumn),
                     cur.getString(titleColumn),
@@ -212,6 +279,7 @@ public class MusicRetriever {
                     ));
 
         } while (cur.moveToNext());
+        cur.close();
         Log.i(TAG, "Done querying media. MusicRetriever is ready.");
     }
 
@@ -219,10 +287,10 @@ public class MusicRetriever {
         return contentResolver;
     }
 
-    /** Returns a random MediaInfo. If there are no items available, returns null. */
+    /** Returns a random MediaInfo. If there are no allItems available, returns null. */
     public MediaInfo getRandomItem() {
-        if (items.size() <= 0) return null;
-        return items.get(getRandomPos());
+        if (getCurrentItems().size() <= 0) return null;
+        return getCurrentItems().get(getRandomPos());
     }
 
     int getRandomPos(){
@@ -230,20 +298,29 @@ public class MusicRetriever {
             random = new Random();
         }
 
-        return random.nextInt(items.size());
+        return random.nextInt(getCurrentItems().size());
     }
 
 
     public List<MediaInfo> getItems(){
-        return items;
+        return allItems;
     }
 
     public MediaInfo getCurrentItem(){
-        return items.get(currentPos);
+        return getCurrentItems().get(currentPos);
+    }
+
+    List<MediaInfo> getCurrentItems(){
+        if(isPlaylistMode){
+            return playlistItems;
+        }
+        return allItems;
     }
 
     public MediaInfo getNextItem(){
         MediaInfo item = null;
+        List<MediaInfo> items = getCurrentItems();
+
         switch (playMode){
             case PlayMode.all_order:
                 if(currentPos < items.size() - 1)
@@ -269,6 +346,7 @@ public class MusicRetriever {
 
     public MediaInfo getPreviousItem(){
         MediaInfo item = null;
+        List<MediaInfo> items = getCurrentItems();
         switch (playMode){
             case PlayMode.all_order:
                 if(currentPos > 0)
@@ -301,7 +379,7 @@ public class MusicRetriever {
 
     public void setCurrentPos(MediaInfo item){
         Log.d(TAG, "setCurrentPos item " + item.getDisplayName());
-        currentPos = items.indexOf(item);
+        currentPos = getCurrentItems().indexOf(item);
         currentPos = currentPos == -1 ? 0 : currentPos;
     }
 

@@ -4,7 +4,7 @@ import android.content.ContentUris;
 import android.net.Uri;
 
 /**
- * Created by cao on 2015/9/2.
+ * Created by jw on 2015/9/2.
  */
 public class MediaInfo {
     long id;
@@ -53,6 +53,18 @@ public class MediaInfo {
         return albumId;
     }
 
+    @Override
+    public String toString() {
+        return "MediaInfo{" +
+                "id=" + id +
+                ", artist='" + artist + '\'' +
+                ", title='" + title + '\'' +
+                ", album='" + album + '\'' +
+                ", duration=" + duration +
+                ", displayName='" + displayName + '\'' +
+                ", albumId=" + albumId +
+                '}';
+    }
 
     public Uri getURI() {
         return ContentUris.withAppendedId(

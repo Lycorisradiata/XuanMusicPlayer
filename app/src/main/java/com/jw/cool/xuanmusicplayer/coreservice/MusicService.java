@@ -45,6 +45,7 @@ import com.jw.cool.xuanmusicplayer.MainActivity;
 import com.jw.cool.xuanmusicplayer.R;
 import com.jw.cool.xuanmusicplayer.events.CompletionEvent;
 import com.jw.cool.xuanmusicplayer.events.ProcessEvent;
+import com.jw.cool.xuanmusicplayer.events.RetrieverPreparedEvent;
 
 import java.io.IOException;
 import java.util.Timer;
@@ -718,6 +719,8 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
             playNextSong(mWhatToPlayAfterRetrieve == null ?
                     null : mWhatToPlayAfterRetrieve.toString(), null);
         }
+        MusicRetriever.getInstance().setIsRetrieverPrepared(true);
+        EventBus.getDefault().post(new RetrieverPreparedEvent());
     }
 
 

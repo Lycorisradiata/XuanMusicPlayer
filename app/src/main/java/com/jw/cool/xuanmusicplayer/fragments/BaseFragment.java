@@ -5,7 +5,7 @@ import android.support.v4.app.Fragment;
 import de.greenrobot.event.EventBus;
 
 /**
- * Created by cao on 2015/9/1.
+ * Created by jw on 2015/9/1.
  */
 public class BaseFragment extends Fragment implements HandleBackPressed{
 

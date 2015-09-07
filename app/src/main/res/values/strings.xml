@@ -28,5 +28,10 @@
     <string name="ok">确定</string>
     <string name="cancel">取消</string>
 
+    <string-array name="tabTitles">
+        <item>歌曲列表</item>
+        <item>播放列表</item>
+    </string-array>
+
 
 </resources>

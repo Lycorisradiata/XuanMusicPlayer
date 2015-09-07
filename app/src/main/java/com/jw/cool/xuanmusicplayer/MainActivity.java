@@ -24,6 +24,7 @@ import android.view.MenuItem;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
 import com.jw.cool.xuanmusicplayer.fragments.BaseFragment;
+import com.jw.cool.xuanmusicplayer.fragments.PlayListFragment;
 import com.jw.cool.xuanmusicplayer.fragments.SongListFragment;
 
 import java.util.ArrayList;
@@ -102,25 +103,22 @@ public class MainActivity extends AppCompatActivity {
 
         rootLayout = (CoordinatorLayout) findViewById(R.id.rootLayout);
         
-        titles = new ArrayList<String>();
-        titles.add("Exchange");
-        titles.add("Activity");
-        titles.add("Me");
+        titles = new ArrayList<>();
+        String[] tabTitles = getResources().getStringArray(R.array.tabTitles);
+        for (String tabTitle : tabTitles) {
+            titles.add(tabTitle);
+        }
 
         viewPager = (ViewPager) findViewById(R.id.view_pager);
-        fragmentsList = new ArrayList<Fragment>();
+        fragmentsList = new ArrayList<>();
         Bundle bundle = new Bundle();
-        Fragment exchangeFragment = SongListFragment.newInstance(
+        Fragment songListFragment = SongListFragment.newInstance(
                 MainActivity.this, bundle);
-        Fragment activityFragment = SongListFragment.newInstance(
-                MainActivity.this, bundle);
-        Fragment meFragment = SongListFragment.newInstance(
+        Fragment playlistFragment = PlayListFragment.newInstance(
                 MainActivity.this, bundle);
 
-
-        fragmentsList.add(exchangeFragment);
-        fragmentsList.add(activityFragment);
-        fragmentsList.add(meFragment);
+        fragmentsList.add(songListFragment);
+        fragmentsList.add(playlistFragment);
         TabFragmentPagerAdapter tabFragmentPagerAdapter = new TabFragmentPagerAdapter(
                 getSupportFragmentManager(), fragmentsList);
         viewPager.setAdapter(new TabFragmentPagerAdapter(
