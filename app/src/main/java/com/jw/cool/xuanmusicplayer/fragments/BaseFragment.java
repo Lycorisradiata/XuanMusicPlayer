@@ -7,7 +7,7 @@ import de.greenrobot.event.EventBus;
 /**
  * Created by jw on 2015/9/1.
  */
-public class BaseFragment extends Fragment implements HandleBackPressed{
+public class BaseFragment extends Fragment implements HandlerBackPressed {
 
     @Override
     public boolean handleBackPressed() {
