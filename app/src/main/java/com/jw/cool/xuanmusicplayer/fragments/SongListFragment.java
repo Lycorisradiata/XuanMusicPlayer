@@ -30,9 +30,11 @@ import com.jw.cool.xuanmusicplayer.coreservice.PlaylistItem;
 import com.jw.cool.xuanmusicplayer.events.RetrieverPreparedEvent;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
 import com.jw.cool.xuanmusicplayer.popupWindows.PopWin;
+import com.jw.cool.xuanmusicplayer.utils.HandlerFile;
 import com.jw.cool.xuanmusicplayer.utils.HandlerScreen;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static android.content.DialogInterface.OnClickListener;
@@ -325,43 +327,40 @@ public class SongListFragment extends BaseFragment
         Log.d(TAG, "remove itemList1 " + itemList.size());
         List<Uri> idList = new ArrayList<>();
         List<String> pathList = new ArrayList<>();
+        int startPos = -1;
         for (int i = 0; i < selectedStatus.length; i++) {
             if(selectedStatus[i]){
+                if(startPos == -1){
+                    startPos = i;
+                }
                 idList.add(itemList.get(i).getURI());
                 pathList.add(itemList.get(i).getPath());
                 itemList.get(i).setDuration(-1);
                 adapter.notifyItemRemoved(i);
-                itemList.remove(i);
-                refreshItemsName();
-                adapter.notifyItemRangeChanged(i, adapter.getItemCount());
-//                adapter.notifyDataSetChanged();
             }
         }
 
+        //刷新itemList
+        Iterator<MediaInfo> iterator = itemList.iterator();
+        MediaInfo temp = null;
+        while (iterator.hasNext()) {
+            temp = iterator.next();
+            if (temp.getDuration() == -1) {
+                iterator.remove();
+            }
+        }
 
-
-//        //删除数据库记录
-//        MusicRetriever.getInstance().removeSongList(idList);
-//        //删除文件
-//        boolean isDeleteSuccess = HandlerFile.delete(pathList);
-//        Log.d(TAG, "remove isDeleteSuccess " + isDeleteSuccess);
-//        //刷新itemList
-//        Iterator<MediaInfo> iterator = itemList.iterator();
-//        MediaInfo temp = null;
-//        while (iterator.hasNext()) {
-//            temp = iterator.next();
-//            System.out.println("Check for " + temp);
-//            if (temp.getDuration() == -1) {
-//                iterator.remove();
-//            }
-//        }
-
-//        1 adapter.notifyItemRemoved(position);
-//        2 personList.remove(position);
-//        3 adapter.notifyItemRangeChanged(position, adapter.getItemCount());
-
+        if(startPos != -1){
+            refreshItemsName();
+            adapter.notifyItemRangeChanged(0, adapter.getItemCount());
+        }
         Log.d(TAG, "remove itemList " + itemList.size());
-//        adapter.notifyDataSetChanged();
+
+        //删除数据库记录
+        MusicRetriever.getInstance().removeSongList(idList);
+        //删除文件
+        boolean isDeleteSuccess = HandlerFile.delete(pathList);
+        Log.d(TAG, "remove isDeleteSuccess " + isDeleteSuccess);
     }
 
     void more(){
