@@ -46,6 +46,7 @@ public class PlaylistActivity extends Activity implements OnSongListItemClickLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playlist);
+        HandlerScreen.setStatusAndNavigationBarTranslucent(this);
         recyclerView = (RecyclerView) findViewById(R.id.playlist_recycleView);
         Bundle bundle = getIntent().getExtras();
         recyclerView.setHasFixedSize(true);//使RecyclerView保持固定的大小,这样会提高RecyclerView的性能。
@@ -55,7 +56,7 @@ public class PlaylistActivity extends Activity implements OnSongListItemClickLis
         playlistName = bundle.getString("name", "");
         itemList = MusicRetriever.getInstance().getPlaylistItems(playlistId);
         refreshItemsName();
-        adapter = new SongListAdapter(this, itemsName,selectedStatus,this);
+        adapter = new SongListAdapter(this, itemsName, this);
         recyclerView.setAdapter(adapter);
     }
 

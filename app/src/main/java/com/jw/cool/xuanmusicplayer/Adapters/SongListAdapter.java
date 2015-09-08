@@ -16,19 +16,21 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHo
     private Context mContext;
     private List<String> list;
     private boolean isNeedShowSelectBox;
-    boolean[] selectedStatus;
+    private boolean[] selectedStatus;
     OnSongListItemClickListener listener;
-    public SongListAdapter(Context mContext, List<String> list, boolean[] selectedStatus,
+    public SongListAdapter(Context mContext, List<String> list,
                            OnSongListItemClickListener listener) {
         this.mContext = mContext;
         this.list = list;
-        this.selectedStatus = selectedStatus;
         this.listener = listener;
     }
 
-    public void setIsNeedShowSelectBox(boolean isNeedShowSelectBox) {
+    public void setIsNeedShowSelectBox(boolean isNeedShowSelectBox, boolean[] selectedStatus) {
         this.isNeedShowSelectBox = isNeedShowSelectBox;
+        this.selectedStatus = selectedStatus;
     }
+
+
 
     @Override
         public SongListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

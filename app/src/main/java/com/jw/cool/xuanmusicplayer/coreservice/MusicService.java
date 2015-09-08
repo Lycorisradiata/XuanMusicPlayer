@@ -260,7 +260,8 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                             strEmpty,
                             bundle.getLong("duration"),
                             bundle.getString("displayName"),
-                            0);
+                            0,
+                            strEmpty);
                     processPlayRequest(item);
                     break;
                 case ACTION_PAUSE:
@@ -502,7 +503,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                 mPlayer.setDataSource(manualUrl);
                 mIsStreaming = manualUrl.startsWith("http:") || manualUrl.startsWith("https:");
 
-                playingItem = new MediaInfo(0, null, manualUrl, null, 0, null, 0);
+                playingItem = new MediaInfo(0, null, manualUrl, null, 0, null, 0, null);
             } else {
                 mIsStreaming = false; // playing a locally available song
 

@@ -15,6 +15,7 @@ import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplayer.events.CompletionEvent;
 import com.jw.cool.xuanmusicplayer.events.ProcessEvent;
+import com.jw.cool.xuanmusicplayer.utils.HandlerScreen;
 import com.jw.cool.xuanmusicplayer.utils.HandlerTime;
 
 import de.greenrobot.event.EventBus;
@@ -31,6 +32,7 @@ public class PlayActivity extends Activity implements View.OnClickListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
+        HandlerScreen.setStatusAndNavigationBarTranslucent(this);
         song = (TextView) findViewById(R.id.song);
         singer = (TextView) findViewById(R.id.singer);
         album = (TextView) findViewById(R.id.album);

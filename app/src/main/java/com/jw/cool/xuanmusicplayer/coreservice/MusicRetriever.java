@@ -144,7 +144,9 @@ public class MusicRetriever {
                 MediaStore.Audio.Playlists.Members.ALBUM,
                 MediaStore.Audio.Playlists.Members.DURATION,
                 MediaStore.Audio.Playlists.Members.DISPLAY_NAME,
-                MediaStore.Audio.Playlists.Members.ALBUM_ID};
+                MediaStore.Audio.Playlists.Members.ALBUM_ID,
+                MediaStore.Audio.Playlists.Members.DATA
+        };
 
         Cursor cursor = getContentResolver().query(uri, showColumns,
                 MediaStore.Audio.Playlists.Members.PLAYLIST_ID + "=?",
@@ -165,7 +167,8 @@ public class MusicRetriever {
             long duration = cursor.getLong(cursor.getColumnIndex(showColumns[4]));
             String displayName = cursor.getString(cursor.getColumnIndex(showColumns[5]));
             long albumId = cursor.getLong(cursor.getColumnIndex(showColumns[6]));
-            MediaInfo item = new MediaInfo(id, artist, title, album, duration, displayName, albumId);
+            String path = cursor.getString(cursor.getColumnIndex(showColumns[7]));
+            MediaInfo item = new MediaInfo(id, artist, title, album, duration, displayName, albumId, path);
             playlistItems.add(item);
         }while (cursor.moveToNext());
         cursor.close();
@@ -202,6 +205,25 @@ public class MusicRetriever {
         } catch (OperationApplicationException e) {
             e.printStackTrace();
         }
+    }
+
+    public void removeSongList(List<Uri> list){
+//        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        ArrayList<ContentProviderOperation> ops = new ArrayList<>();
+        for (Uri uri : list) {
+            ops.add(ContentProviderOperation.newDelete(uri)
+                    .withYieldAllowed(true)
+                    .build());
+        }
+
+        try {
+            getContentResolver().applyBatch(MediaStore.AUTHORITY, ops);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        } catch (OperationApplicationException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public long createPlaylist(String name){
@@ -256,7 +278,7 @@ public class MusicRetriever {
         // retrieve the indices of the columns where the ID, title, etc. of the song are
         int artistColumn = cur.getColumnIndex(MediaStore.Audio.Media.ARTIST);
         int titleColumn = cur.getColumnIndex(MediaStore.Audio.Media.TITLE);
-//        int titleColumn = cur.getColumnIndex(MediaStore.Audio.Media.DATA);
+        int dataColumn = cur.getColumnIndex(MediaStore.Audio.Media.DATA);
         int albumColumn = cur.getColumnIndex(MediaStore.Audio.Media.ALBUM);
         int durationColumn = cur.getColumnIndex(MediaStore.Audio.Media.DURATION);
         int idColumn = cur.getColumnIndex(MediaStore.Audio.Media._ID);
@@ -275,9 +297,9 @@ public class MusicRetriever {
                     cur.getString(albumColumn),
                     cur.getLong(durationColumn),
                     displayName,
-                    cur.getLong(albumId)
-                    ));
-
+                    cur.getLong(albumId),
+                    cur.getString(dataColumn)
+            ));
         } while (cur.moveToNext());
         cur.close();
         Log.i(TAG, "Done querying media. MusicRetriever is ready.");

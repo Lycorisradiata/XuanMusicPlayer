@@ -3,26 +3,25 @@ package com.jw.cool.xuanmusicplayer.fragments;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.Adapter;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupWindow;
 
-import com.jw.cool.xuanmusicplayer.adapters.OnSongListItemClickListener;
-import com.jw.cool.xuanmusicplayer.adapters.SongListAdapter;
 import com.jw.cool.xuanmusicplayer.PlayActivity;
 import com.jw.cool.xuanmusicplayer.R;
+import com.jw.cool.xuanmusicplayer.adapters.OnSongListItemClickListener;
+import com.jw.cool.xuanmusicplayer.adapters.SongListAdapter;
 import com.jw.cool.xuanmusicplayer.coreservice.MediaInfo;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
@@ -30,6 +29,7 @@ import com.jw.cool.xuanmusicplayer.coreservice.PlayList;
 import com.jw.cool.xuanmusicplayer.coreservice.PlaylistItem;
 import com.jw.cool.xuanmusicplayer.events.RetrieverPreparedEvent;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
+import com.jw.cool.xuanmusicplayer.popupWindows.PopWin;
 import com.jw.cool.xuanmusicplayer.utils.HandlerScreen;
 
 import java.util.ArrayList;
@@ -41,9 +41,8 @@ public class SongListFragment extends BaseFragment
         implements View.OnClickListener, OnSongListItemClickListener{
     final String TAG = "SongListFragment";
     List<MediaInfo> itemList = new ArrayList<>();
-	Adapter adapter;
-    Button selectAll,  selectOthers, selectCancel, selectNumber;
-    Button addToPlaylist, remove, more;
+    SongListAdapter adapter;
+    Button selectNumber;
     boolean isNeedShowSelectBox;
     PopupWindow selectPopupWindow;
     PopupWindow operatePopupWindow;
@@ -63,54 +62,17 @@ public class SongListFragment extends BaseFragment
 
     void showSelectPopupWindow(){
         if(selectPopupWindow == null){
-            View layout =  LayoutInflater.from(getActivity()).inflate(R.layout.select_popup_window_song_list, null);
-            selectAll = (Button) layout.findViewById(R.id.select_all);
-            selectAll.setOnClickListener(this);
-            selectOthers = (Button) layout.findViewById(R.id.select_others);
-            selectOthers.setOnClickListener(this);
-            selectCancel = (Button) layout.findViewById(R.id.select_cancel);
-            selectCancel.setOnClickListener(this);
-            selectNumber = (Button) layout.findViewById(R.id.select_number);
-            Log.d(TAG, "showPopupWindow layout " + layout);
-            selectPopupWindow = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            selectPopupWindow.setTouchable(true);
-            selectPopupWindow.setTouchInterceptor(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    Log.d(TAG, "onTouch ");
-                    return false;
-                }
-            });
-//            selectPopupWindow.setBackgroundDrawable(
-//                    new ColorDrawable(getResources().getDrawable(R.color.select_popup_window_background));
+            selectPopupWindow = PopWin.getSelectWindow(getContext(), this);
+            selectNumber = (Button) selectPopupWindow.getContentView().findViewById(R.id.select_number);
         }
-
         selectPopupWindow.showAtLocation(recyclerView, Gravity.NO_GRAVITY, 0,
                 HandlerScreen.getStatusBarHeight(getContext()));
     }
 
     void showOperatePopupWindow(){
         if(operatePopupWindow == null){
-            View layout =  LayoutInflater.from(getActivity()).inflate(R.layout.operate_popup_window_song_list, null);
-            addToPlaylist = (Button) layout.findViewById(R.id.add_to_playlist);
-            addToPlaylist.setOnClickListener(this);
-            remove = (Button) layout.findViewById(R.id.remove);
-            remove.setOnClickListener(this);
-            more = (Button) layout.findViewById(R.id.more);
-            more.setOnClickListener(this);
-            Log.d(TAG, "showPopupWindow layout " + layout);
-            operatePopupWindow = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            operatePopupWindow.setTouchable(true);
-            operatePopupWindow.setTouchInterceptor(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    Log.d(TAG, "onTouch ");
-                    return false;
-                }
-            });
-//            operatePopupWindow.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.song_list_background, null)));
+            operatePopupWindow = PopWin.getOperateWindow(getContext(), this);
         }
-
         operatePopupWindow.showAtLocation(recyclerView, Gravity.BOTTOM, 0, 0);
     }
 
@@ -138,10 +100,11 @@ public class SongListFragment extends BaseFragment
 
     /**
      * */
-    void dismissPopupWindows(){
+    void dismissPopupWindows(Boolean notify){
         Log.d(TAG, "dismissPopupWindows ");
         isNeedShowSelectBox = false;
-        selectedStatus = null;
+        adapter.setIsNeedShowSelectBox(isNeedShowSelectBox, null);
+//        selectedStatus = null;
         if(null != operatePopupWindow && operatePopupWindow.isShowing()) {
             operatePopupWindow.dismiss();
         }
@@ -149,7 +112,11 @@ public class SongListFragment extends BaseFragment
         if(null != selectPopupWindow && selectPopupWindow.isShowing()) {
             selectPopupWindow.dismiss();
         }
-        adapter.notifyDataSetChanged();
+
+        if(notify){
+            adapter.notifyDataSetChanged();
+        }
+
     }
 
     public static SongListFragment newInstance(Context context,Bundle bundle) {
@@ -168,7 +135,7 @@ public class SongListFragment extends BaseFragment
         recyclerView.setLayoutManager(layoutManager);
         itemList = MusicRetriever.getInstance().getItems();
         refreshItemsName();
-        adapter = new SongListAdapter(getContext(), itemsName,selectedStatus,this);
+        adapter = new SongListAdapter(getContext(), itemsName, this);
         recyclerView.setAdapter(adapter);
         return recyclerView;
     }
@@ -182,7 +149,7 @@ public class SongListFragment extends BaseFragment
     public boolean handleBackPressed() {
         super.handleBackPressed();
         if(isNeedShowSelectBox){
-            dismissPopupWindows();
+            dismissPopupWindows(true);
             return true;
         }
 
@@ -254,18 +221,26 @@ public class SongListFragment extends BaseFragment
 
     @Override
     public void onClick(View v) {
-        if(v == selectAll){
-            selectAll();
-        }else if(v == selectOthers){
-            selectOthers();
-        }else if(v == selectCancel){
-            dismissPopupWindows();
-        }else if(v == addToPlaylist){
-            showPlaylistDialog();
-        }else if(v == remove){
-            remove();
-        } else if(v == more){
-            more();
+        Log.d(TAG, "onClick v.id " + v.getId());
+        switch (v.getId()){
+            case R.id.select_all:
+                selectAll();
+                break;
+            case R.id.select_others:
+                selectOthers();
+                break;
+            case R.id.select_cancel:
+                dismissPopupWindows(true);
+                break;
+            case R.id.add_to_playlist:
+                showPlaylistDialog();
+                break;
+            case R.id.remove:
+                remove();
+                break;
+            case R.id.more:
+                more();
+                break;
         }
     }
 
@@ -346,7 +321,47 @@ public class SongListFragment extends BaseFragment
 
 
     void remove(){
-        Log.d(TAG, "remove ");  
+        dismissPopupWindows(false);
+        Log.d(TAG, "remove itemList1 " + itemList.size());
+        List<Uri> idList = new ArrayList<>();
+        List<String> pathList = new ArrayList<>();
+        for (int i = 0; i < selectedStatus.length; i++) {
+            if(selectedStatus[i]){
+                idList.add(itemList.get(i).getURI());
+                pathList.add(itemList.get(i).getPath());
+                itemList.get(i).setDuration(-1);
+                adapter.notifyItemRemoved(i);
+                itemList.remove(i);
+                refreshItemsName();
+                adapter.notifyItemRangeChanged(i, adapter.getItemCount());
+//                adapter.notifyDataSetChanged();
+            }
+        }
+
+
+
+//        //删除数据库记录
+//        MusicRetriever.getInstance().removeSongList(idList);
+//        //删除文件
+//        boolean isDeleteSuccess = HandlerFile.delete(pathList);
+//        Log.d(TAG, "remove isDeleteSuccess " + isDeleteSuccess);
+//        //刷新itemList
+//        Iterator<MediaInfo> iterator = itemList.iterator();
+//        MediaInfo temp = null;
+//        while (iterator.hasNext()) {
+//            temp = iterator.next();
+//            System.out.println("Check for " + temp);
+//            if (temp.getDuration() == -1) {
+//                iterator.remove();
+//            }
+//        }
+
+//        1 adapter.notifyItemRemoved(position);
+//        2 personList.remove(position);
+//        3 adapter.notifyItemRangeChanged(position, adapter.getItemCount());
+
+        Log.d(TAG, "remove itemList " + itemList.size());
+//        adapter.notifyDataSetChanged();
     }
 
     void more(){
@@ -389,6 +404,7 @@ public class SongListFragment extends BaseFragment
             selectedStatus = new boolean[itemList.size()];
             selectedStatus[position] = true;
             selectedItemsCount = 1;
+            adapter.setIsNeedShowSelectBox(true, selectedStatus);
             adapter.notifyDataSetChanged();
             showSelectPopupWindow();
             showOperatePopupWindow();

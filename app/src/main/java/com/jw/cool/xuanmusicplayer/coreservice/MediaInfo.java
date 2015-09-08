@@ -14,9 +14,10 @@ public class MediaInfo {
     long duration;
     String displayName;
     long albumId;
+    String path;
 
     public MediaInfo(long id, String artist, String title, String album,
-                     long duration, String displayName, long albumId) {
+                     long duration, String displayName, long albumId, String path) {
         this.id = id;
         this.artist = artist;
         this.title = title;
@@ -24,6 +25,11 @@ public class MediaInfo {
         this.duration = duration;
         this.displayName = displayName;
         this.albumId = albumId;
+        this.path = path;
+    }
+
+    public String getPath() {
+        return path;
     }
 
     public long getId() {
@@ -44,6 +50,9 @@ public class MediaInfo {
 
     public long getDuration() {
         return duration;
+    }
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
     public String getDisplayName() {
         return displayName;

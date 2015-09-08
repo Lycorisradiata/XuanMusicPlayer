@@ -52,7 +52,7 @@ public class PlayListFragment extends BaseFragment implements OnSongListItemClic
         playLists = MusicRetriever.getInstance().getPlaylist();
         refreshItemsName();
         selectedStatus = new boolean[itemsName.size()];
-        adapter = new SongListAdapter(getContext(), itemsName, selectedStatus, this);
+        adapter = new SongListAdapter(getContext(), itemsName, this);
         recyclerView.setAdapter(adapter);
         return view;
     }

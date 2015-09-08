@@ -26,6 +26,7 @@ import com.jw.cool.xuanmusicplayer.events.SearchEvent;
 import com.jw.cool.xuanmusicplayer.fragments.BaseFragment;
 import com.jw.cool.xuanmusicplayer.fragments.PlayListFragment;
 import com.jw.cool.xuanmusicplayer.fragments.SongListFragment;
+import com.jw.cool.xuanmusicplayer.utils.HandlerScreen;
 
 import java.util.ArrayList;
 
@@ -53,11 +54,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        HandlerScreen.setStatusAndNavigationBarTranslucent(this);
         Log.d(TAG, "oncreate enter");
         initToolbar();
         initInstances();
         Intent intent = new Intent(MainActivity.this,MusicService.class);
         startService(intent);
+
     }
 
     @Override
@@ -66,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onStart ");
         setSupportActionBar(toolbar);
         viewPager.setCurrentItem(0);
+
     }
 
     @Override
@@ -127,8 +131,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager.addOnPageChangeListener(new MyOnPageChangeListener());
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
         tabLayout.setupWithViewPager(viewPager);
-        tabLayout.setTabsFromPagerAdapter(tabFragmentPagerAdapter);    
-       
+        tabLayout.setTabsFromPagerAdapter(tabFragmentPagerAdapter);
     }
 
     public class TabFragmentPagerAdapter extends FragmentPagerAdapter {
