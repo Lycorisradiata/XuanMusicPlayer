@@ -1,25 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory>
+    <PreferenceCategory android:title="First category">
+        <Preference
+            android:persistent="false"
+            android:summary="This is just a normal preference"
+            android:title="Preference" />
+        <Preference
+            android:enabled="false"
+            android:persistent="false"
+            android:summary="This is just a disabled preference"
+            android:title="Preference 2" />
+        <Preference
+            android:icon="@drawable/ic_launcher"
+            android:persistent="false"
+            android:summary="This is a preference with icon"
+            android:title="Preference 3" />
         <CheckBoxPreference
-            android:key="earphone_disconnect"
-            android:title="earphone_disconnect_pause_or_not"
-            android:text="earphone_disconnect_pause_or_not2"
-            android:defaultValue="true"/>
-        <CheckBoxPreference
-            android:key="earphone_disconnect2"
-            android:title="earphone_disconnect_pause_or_not222"
-            android:text="earphone_disconnect_pause_or_not22"
-            android:defaultValue="true"/>
+            android:persistent="false"
+            android:summary="It's a checkbox"
+            android:title="CheckBoxPreference" />
+        <SwitchPreferenceCompat
+            android:persistent="false"
+            android:summary="It's a switch"
+            android:title="SwitchPreference" />
     </PreferenceCategory>
-    <SwitchPreference
-        android:key="test"
-        android:title="test_SwitchPreference"
-        android:text="test_SwitchPreference2" />
+    <PreferenceCategory android:title="Another category">
+        <EditTextPreference
+            android:key="edit_text_test"
+            android:persistent="false"
+            android:summary="It's an input"
+            android:title="EditTextPreference" />
+        <ListPreference
+            android:dialogTitle="ListPreference dialog"
+            android:entries="@array/pref_list_entries"
+            android:entryValues="@array/pref_list_values"
+            android:key="pref_syncConnectionType"
+            android:persistent="false"
+            android:title="ListPreference" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="pref_categ"
+        android:title="Dynamic category">
+        <Preference
+            android:key="pref_add"
+            android:persistent="false"
+            android:summary="Add preference"
+            android:title="Preference" />
+    </PreferenceCategory>
 </PreferenceScreen>
--->
-<android.support.v7.preference.PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android">
-
-</android.support.v7.preference.PreferenceScreen>

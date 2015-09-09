@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         HandlerScreen.setStatusAndNavigationBarTranslucent(this);
 //        //初始化配置文件
-        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
+//        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
 //        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 //        boolean needPause = sp.getBoolean("earphone_disconnect", true);
 //        Log.d(TAG, "onCreate needPause " + needPause);

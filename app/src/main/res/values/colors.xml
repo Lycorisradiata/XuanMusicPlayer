@@ -6,4 +6,15 @@
     <color name="song_list_divider">#9f008fff</color>
     <drawable name="select_popup_window_background">#80008fff</drawable>
     <drawable name="select_button_background">#ff6000</drawable>
+
+    <color name="primary">#3F51B5</color>
+    <color name="primary_dark">#303F9F</color>
+    <color name="primary_light">#C5CAE9</color>
+    <color name="accent">#ff4081</color>
+    <!-- this is needed as preference_category_material layout is using this color as the text color -->
+    <color name="preference_fallback_accent_color">@color/accent</color>
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#727272</color>
+    <color name="icons">#FFFFFF</color>
+    <color name="divider">#B6B6B6</color>
 </resources>
