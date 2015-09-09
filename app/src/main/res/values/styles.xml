@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">#2196F3</item>
         <item name="colorPrimaryDark">#1565C0</item>
@@ -11,6 +11,7 @@
     <style name="AppTheme.WithoutActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     </style>
     <style name="Theme.DesignDemo" parent="Base.Theme.DesignDemo">
     </style>
@@ -29,6 +30,9 @@
         <item name="android:background">@drawable/select_button_background</item>
         <item name="android:layout_marginLeft">5dp</item>
         <item name="android:layout_marginRight">5dp</item>
+    </style>
+
+    <style name="SettingsActivity" parent="PreferenceThemeOverlay">
     </style>
 
 </resources>

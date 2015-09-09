@@ -33,5 +33,7 @@
         <item>播放列表</item>
     </string-array>
 
+    <string name="settings">设置</string>
+
 
 </resources>

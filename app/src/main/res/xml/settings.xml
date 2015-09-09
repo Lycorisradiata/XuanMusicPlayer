@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory>
+        <CheckBoxPreference
+            android:key="earphone_disconnect"
+            android:title="earphone_disconnect_pause_or_not"
+            android:text="earphone_disconnect_pause_or_not2"
+            android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:key="earphone_disconnect2"
+            android:title="earphone_disconnect_pause_or_not222"
+            android:text="earphone_disconnect_pause_or_not22"
+            android:defaultValue="true"/>
+    </PreferenceCategory>
+    <SwitchPreference
+        android:key="test"
+        android:title="test_SwitchPreference"
+        android:text="test_SwitchPreference2" />
+</PreferenceScreen>
+-->
+<android.support.v7.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+</android.support.v7.preference.PreferenceScreen>

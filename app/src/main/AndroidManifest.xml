@@ -20,6 +20,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".PlaylistActivity"/>
+        <activity android:name=".SettingsActivity" />
 
         <service android:exported="true" android:name=".coreservice.MusicService">
             <intent-filter>

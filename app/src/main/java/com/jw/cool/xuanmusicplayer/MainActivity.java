@@ -3,9 +3,11 @@ package com.jw.cool.xuanmusicplayer;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,6 +15,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -39,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle drawerToggle;
+    NavigationView navigationView;
 
     CoordinatorLayout rootLayout;
     FloatingActionButton fabBtn;
@@ -55,12 +59,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         HandlerScreen.setStatusAndNavigationBarTranslucent(this);
+//        //初始化配置文件
+        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
+//        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+//        boolean needPause = sp.getBoolean("earphone_disconnect", true);
+//        Log.d(TAG, "onCreate needPause " + needPause);
         Log.d(TAG, "oncreate enter");
         initToolbar();
         initInstances();
         Intent intent = new Intent(MainActivity.this,MusicService.class);
         startService(intent);
-
+//        Palette palette;
     }
 
     @Override
@@ -101,9 +110,28 @@ public class MainActivity extends AppCompatActivity {
         drawerToggle = new ActionBarDrawerToggle(MainActivity.this, drawerLayout, R.string.hello_world, R.string.hello_world);
         System.out.println("drawerLayout " + drawerLayout + " drawerToggle " + drawerToggle);
         drawerLayout.setDrawerListener(drawerToggle);
+        navigationView = (NavigationView) findViewById(R.id.navigation);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                Log.d(TAG, "onNavigationItemSelected " + menuItem.getTitle());
+                menuItem.setChecked(true);
+                drawerLayout.closeDrawers();
+                switch (menuItem.getItemId()){
+                    case R.id.nav_settings:
+                        startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                        break;
+                }
+                return false;
+            }
+        });
 
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null){
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
 
         rootLayout = (CoordinatorLayout) findViewById(R.id.rootLayout);
         
