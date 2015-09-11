@@ -3,8 +3,15 @@ package com.jw.cool.xuanmusicplayer;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -14,7 +21,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.PopupWindow;
 
+import com.daimajia.swipe.SimpleSwipeListener;
+import com.daimajia.swipe.SwipeLayout;
 import com.jw.cool.xuanmusicplayer.adapter.OnSongListItemClickListener;
+import com.jw.cool.xuanmusicplayer.adapter.PlayListAdapter;
 import com.jw.cool.xuanmusicplayer.adapter.SongListAdapter;
 import com.jw.cool.xuanmusicplayer.coreservice.MediaInfo;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
@@ -27,7 +37,7 @@ import java.util.List;
 /**
  * Created by jw on 2015/9/7.
  */
-public class PlaylistActivity extends Activity implements OnSongListItemClickListener, View.OnClickListener{
+public class PlaylistActivity extends AppCompatActivity implements OnSongListItemClickListener, View.OnClickListener{
     private static final String TAG = "PlaylistActivity";
     RecyclerView recyclerView;
     List<MediaInfo> itemList;
@@ -42,11 +52,44 @@ public class PlaylistActivity extends Activity implements OnSongListItemClickLis
     String playlistName;
     long playlistId;
     List<String> itemsName;
+
+    Toolbar toolbar;
+    CollapsingToolbarLayout collapsingToolbarLayout;
+    CoordinatorLayout rootLayout;
+    FloatingActionButton fabBtn;
+
+    SwipeLayout.SwipeListener listener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playlist);
         HandlerScreen.setStatusAndNavigationBarTranslucent(this);
+
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null){
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        rootLayout = (CoordinatorLayout) findViewById(R.id.rootLayout);
+
+        fabBtn = (FloatingActionButton) findViewById(R.id.fabBtn);
+        fabBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Snackbar.make(rootLayout, "Hello. I am Snackbar!", Snackbar.LENGTH_SHORT)
+                        .setAction("Undo", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+
+                            }
+                        })
+                        .show();
+            }
+        });
+
+        collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbarLayout);
+        collapsingToolbarLayout.setTitle("Design Library");
         recyclerView = (RecyclerView) findViewById(R.id.playlist_recycleView);
         Bundle bundle = getIntent().getExtras();
         recyclerView.setHasFixedSize(true);//使RecyclerView保持固定的大小,这样会提高RecyclerView的性能。
@@ -56,7 +99,9 @@ public class PlaylistActivity extends Activity implements OnSongListItemClickLis
         playlistName = bundle.getString("name", "");
         itemList = MusicRetriever.getInstance().getPlaylistItems(playlistId);
         refreshItemsName();
-        adapter = new SongListAdapter(this, itemsName, this);
+        listener = new SimpleSwipeListener();
+        adapter = new PlayListAdapter(this, itemsName, listener);
+//        adapter = new SongListAdapter(this, itemsName, this);
         recyclerView.setAdapter(adapter);
     }
 

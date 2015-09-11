@@ -5,13 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/song_list_divider"/>
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:background="@color/song_list_divider"/>
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@color/song_list_background">
+        android:layout_height="60dp">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"

@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> titles;
     SearchView mSearchView;
     String mSearchText;
+    private int currIndex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         Log.d(TAG, "onStart ");
         setSupportActionBar(toolbar);
-        viewPager.setCurrentItem(0);
+        viewPager.setCurrentItem(currIndex);
 
     }
 
@@ -194,21 +195,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onPageSelected(int arg0) {
-
-            switch (arg0) {
-                case 0:
-
-                    break;
-                case 1:
-
-                    break;
-                case 2:
-
-                    break;
-
-            }
-//            currIndex = arg0;
-
+            Log.d(TAG, "onPageSelected arg0 " + arg0);
+            currIndex = arg0;
         }
 
         @Override
