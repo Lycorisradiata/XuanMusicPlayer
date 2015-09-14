@@ -8,7 +8,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.daimajia.swipe.SimpleSwipeListener;
 import com.daimajia.swipe.SwipeLayout;
 import com.jw.cool.xuanmusicplayer.R;
 
@@ -20,9 +22,10 @@ import java.util.List;
 public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHolder> {
     private Context mContext;
     private List<String> list;
-    SwipeLayout.SwipeListener listener;
+    PlayListListener listener;
+//    SwipeLayout
     public PlayListAdapter(Context mContext, List<String> list,
-                           SwipeLayout.SwipeListener listener) {
+                           PlayListListener listener) {
         this.mContext = mContext;
         this.list = list;
         this.listener = listener;
@@ -30,18 +33,31 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHo
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        SwipeLayout view =
-                (SwipeLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.swipe_item, parent, false);
+        View view =
+                 LayoutInflater.from(parent.getContext()).inflate(R.layout.swipe_item, parent, false);
         return new ViewHolder(view, listener);
     }
 
     @Override
-    public void onBindViewHolder(final PlayListAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(final PlayListAdapter.ViewHolder holder, final int position) {
         final View view = holder.mView;
         TextView textView = (TextView)view.findViewById(R.id.swipe_item_top);
         textView.setText(list.get(position));
         Button button = (Button) view.findViewById(R.id.swipe_item_delete);
         button.setText("delete");
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onDeleteButtonClick(view, position);
+            }
+        });
+
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onItemClick(v, position);
+            }
+        });
         holder.position = position;
     }
 
@@ -51,14 +67,13 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHo
     }
 
     public  class ViewHolder extends RecyclerView.ViewHolder {
-        public final SwipeLayout mView;
+        public final View mView;
         public int position;
 
-        public ViewHolder(SwipeLayout view, SwipeLayout.SwipeListener listener) {
+        public ViewHolder(View view, PlayListListener listener) {
             super(view);
             mView = view;
-            mView.setShowMode(SwipeLayout.ShowMode.LayDown);
-            mView.addSwipeListener(listener);
+
         }
     }
 }

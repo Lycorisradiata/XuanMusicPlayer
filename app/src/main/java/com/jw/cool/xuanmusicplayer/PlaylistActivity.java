@@ -20,11 +20,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import com.daimajia.swipe.SimpleSwipeListener;
 import com.daimajia.swipe.SwipeLayout;
+import com.daimajia.swipe.adapters.RecyclerSwipeAdapter;
+import com.daimajia.swipe.util.Attributes;
+import com.jw.cool.xuanmusicplayer.adapter.DividerItemDecoration;
 import com.jw.cool.xuanmusicplayer.adapter.OnSongListItemClickListener;
 import com.jw.cool.xuanmusicplayer.adapter.PlayListAdapter;
+import com.jw.cool.xuanmusicplayer.adapter.PlayListListener;
 import com.jw.cool.xuanmusicplayer.adapter.SongListAdapter;
 import com.jw.cool.xuanmusicplayer.coreservice.MediaInfo;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
@@ -32,12 +37,16 @@ import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplayer.utils.HandlerScreen;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
 /**
  * Created by jw on 2015/9/7.
  */
-public class PlaylistActivity extends AppCompatActivity implements OnSongListItemClickListener, View.OnClickListener{
+public class PlaylistActivity extends AppCompatActivity
+        implements PlayListListener, View.OnClickListener{
     private static final String TAG = "PlaylistActivity";
     RecyclerView recyclerView;
     List<MediaInfo> itemList;
@@ -94,14 +103,16 @@ public class PlaylistActivity extends AppCompatActivity implements OnSongListIte
         Bundle bundle = getIntent().getExtras();
         recyclerView.setHasFixedSize(true);//使RecyclerView保持固定的大小,这样会提高RecyclerView的性能。
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider)));
+        recyclerView.setItemAnimator(new FadeInLeftAnimator());
         recyclerView.setLayoutManager(layoutManager);
         playlistId = bundle.getLong("id", -1);
         playlistName = bundle.getString("name", "");
         itemList = MusicRetriever.getInstance().getPlaylistItems(playlistId);
         refreshItemsName();
         listener = new SimpleSwipeListener();
-        adapter = new PlayListAdapter(this, itemsName, listener);
-//        adapter = new SongListAdapter(this, itemsName, this);
+        adapter = new PlayListAdapter(this, itemsName, this);
+//        ((RecyclerSwipeAdapter) adapter).setMode(Attributes.Mode.Single);
         recyclerView.setAdapter(adapter);
     }
 
@@ -126,51 +137,6 @@ public class PlaylistActivity extends AppCompatActivity implements OnSongListIte
         String sAgeFormat = getResources().getString(R.string.select_items_count);
         String sFinalAge = String.format(sAgeFormat, selectedItemsCount);
         selectNumber.setText(sFinalAge);
-    }
-
-    @Override
-    public void onSongListItemClick(View view, int position) {
-        if(isNeedShowSelectBox){
-            selectedStatus[position] = !selectedStatus[position];
-            if(selectedStatus[position]){
-                selectedItemsCount++;
-            }else{
-                selectedItemsCount--;
-            }
-            setSelectNumber();
-            Log.d(TAG, "onItemClick position " + position + " " + selectedStatus[position]);
-            adapter.notifyItemChanged(position);
-        }else{
-            Intent intent = new Intent();
-            intent.setAction(MusicService.ACTION_PLAY);
-            MediaInfo item = itemList.get(position);
-            MusicRetriever.getInstance().setCurrentPos(item);
-            Bundle bundle = new Bundle();
-            bundle.putLong("id", item.getId());
-            bundle.putLong("duration", item.getDuration());
-            bundle.putString("title", item.getTitle());
-            bundle.putString("displayName", item.getDisplayName());
-            intent.putExtras(bundle);
-
-            startService(intent);
-            MusicRetriever.getInstance().setIsPlaylistMode(true);
-            MusicRetriever.getInstance().setCurrentPos(itemList.get(position));
-            startActivity(new Intent(this, PlayActivity.class));
-        }
-    }
-
-    @Override
-    public void onSongListItemLongClick(View view, int position) {
-        if(!isNeedShowSelectBox){
-            isNeedShowSelectBox = true;
-            selectedStatus = new boolean[itemList.size()];
-            selectedStatus[position] = true;
-            selectedItemsCount = 1;
-            adapter.notifyDataSetChanged();
-            showSelectPopupWindow();
-            showOperatePopupWindow();
-            setSelectNumber();
-        }
     }
 
     void showSelectPopupWindow(){
@@ -226,5 +192,29 @@ public class PlaylistActivity extends AppCompatActivity implements OnSongListIte
     @Override
     public void onClick(View v) {
 
+    }
+
+    @Override
+    public void onItemClick(View v, int pos) {
+        Intent intent = new Intent();
+        intent.setAction(MusicService.ACTION_PLAY);
+        MediaInfo item = itemList.get(pos);
+        MusicRetriever.getInstance().setCurrentPos(item);
+        Bundle bundle = new Bundle();
+        bundle.putLong("id", item.getId());
+        bundle.putLong("duration", item.getDuration());
+        bundle.putString("title", item.getTitle());
+        bundle.putString("displayName", item.getDisplayName());
+        intent.putExtras(bundle);
+
+        startService(intent);
+        MusicRetriever.getInstance().setIsPlaylistMode(true);
+        MusicRetriever.getInstance().setCurrentPos(itemList.get(pos));
+        startActivity(new Intent(this, PlayActivity.class));
+    }
+
+    @Override
+    public void onDeleteButtonClick(View v, int pos) {
+        Toast.makeText(this, "delete item " + pos, Toast.LENGTH_LONG).show();
     }
 }
