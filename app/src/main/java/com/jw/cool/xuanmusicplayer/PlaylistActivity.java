@@ -27,9 +27,9 @@ import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.RecyclerSwipeAdapter;
 import com.daimajia.swipe.util.Attributes;
 import com.jw.cool.xuanmusicplayer.adapter.DividerItemDecoration;
+import com.jw.cool.xuanmusicplayer.adapter.OnPlayListItemListener;
 import com.jw.cool.xuanmusicplayer.adapter.OnSongListItemClickListener;
 import com.jw.cool.xuanmusicplayer.adapter.PlayListAdapter;
-import com.jw.cool.xuanmusicplayer.adapter.PlayListListener;
 import com.jw.cool.xuanmusicplayer.adapter.SongListAdapter;
 import com.jw.cool.xuanmusicplayer.coreservice.MediaInfo;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
@@ -46,7 +46,7 @@ import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
  * Created by jw on 2015/9/7.
  */
 public class PlaylistActivity extends AppCompatActivity
-        implements PlayListListener, View.OnClickListener{
+        implements OnPlayListItemListener, View.OnClickListener{
     private static final String TAG = "PlaylistActivity";
     RecyclerView recyclerView;
     List<MediaInfo> itemList;
@@ -67,7 +67,6 @@ public class PlaylistActivity extends AppCompatActivity
     CoordinatorLayout rootLayout;
     FloatingActionButton fabBtn;
 
-    SwipeLayout.SwipeListener listener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,7 +109,6 @@ public class PlaylistActivity extends AppCompatActivity
         playlistName = bundle.getString("name", "");
         itemList = MusicRetriever.getInstance().getPlaylistItems(playlistId);
         refreshItemsName();
-        listener = new SimpleSwipeListener();
         adapter = new PlayListAdapter(this, itemsName, this);
 //        ((RecyclerSwipeAdapter) adapter).setMode(Attributes.Mode.Single);
         recyclerView.setAdapter(adapter);
@@ -194,27 +192,37 @@ public class PlaylistActivity extends AppCompatActivity
 
     }
 
-    @Override
-    public void onItemClick(View v, int pos) {
-        Intent intent = new Intent();
-        intent.setAction(MusicService.ACTION_PLAY);
-        MediaInfo item = itemList.get(pos);
-        MusicRetriever.getInstance().setCurrentPos(item);
-        Bundle bundle = new Bundle();
-        bundle.putLong("id", item.getId());
-        bundle.putLong("duration", item.getDuration());
-        bundle.putString("title", item.getTitle());
-        bundle.putString("displayName", item.getDisplayName());
-        intent.putExtras(bundle);
+//    @Override
+//    public void onItemClick(View v, int pos) {
+//        Intent intent = new Intent();
+//        intent.setAction(MusicService.ACTION_PLAY);
+//        MediaInfo item = itemList.get(pos);
+//        MusicRetriever.getInstance().setCurrentPos(item);
+//        Bundle bundle = new Bundle();
+//        bundle.putLong("id", item.getId());
+//        bundle.putLong("duration", item.getDuration());
+//        bundle.putString("title", item.getTitle());
+//        bundle.putString("displayName", item.getDisplayName());
+//        intent.putExtras(bundle);
+//
+//        startService(intent);
+//        MusicRetriever.getInstance().setIsPlaylistMode(true);
+//        MusicRetriever.getInstance().setCurrentPos(itemList.get(pos));
+//        startActivity(new Intent(this, PlayActivity.class));
+//    }
 
-        startService(intent);
-        MusicRetriever.getInstance().setIsPlaylistMode(true);
-        MusicRetriever.getInstance().setCurrentPos(itemList.get(pos));
-        startActivity(new Intent(this, PlayActivity.class));
+//    @Override
+//    public void onDeleteButtonClick(View v, int pos) {
+//        Toast.makeText(this, "delete item " + pos, Toast.LENGTH_LONG).show();
+//    }
+
+    @Override
+    public void onPlayListItemClick(View v, int pos) {
+
     }
 
     @Override
-    public void onDeleteButtonClick(View v, int pos) {
-        Toast.makeText(this, "delete item " + pos, Toast.LENGTH_LONG).show();
+    public void onPlayListDeleteButtonClick(View v, int pos) {
+
     }
 }

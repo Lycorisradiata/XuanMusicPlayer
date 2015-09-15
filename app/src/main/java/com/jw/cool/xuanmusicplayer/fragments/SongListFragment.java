@@ -48,6 +48,7 @@ public class SongListFragment extends BaseFragment
     boolean isNeedShowSelectBox;
     PopupWindow selectPopupWindow;
     PopupWindow operatePopupWindow;
+    PopupWindow playPopupWindow;
     boolean[] selectedStatus;
     int selectedItemsCount;
     List<PlayList> playLists;
@@ -76,6 +77,15 @@ public class SongListFragment extends BaseFragment
             operatePopupWindow = PopWin.getOperateWindow(getContext(), this);
         }
         operatePopupWindow.showAtLocation(recyclerView, Gravity.BOTTOM, 0, 0);
+    }
+
+//    PopupWindow playPopupWindow;
+    void showPlayPopupWindow(){
+        if (playPopupWindow == null) {
+            playPopupWindow = PopWin.getPlayWindow(getActivity().getApplicationContext(), null);
+        }
+
+        playPopupWindow.showAtLocation(getView(), Gravity.BOTTOM, 0, 0);
     }
 
     void selectAll(){
@@ -188,6 +198,7 @@ public class SongListFragment extends BaseFragment
         Log.d(TAG, "onStart test");
         itemList = MusicRetriever.getInstance().getItems();
         refreshItemsName();
+//        showPlayPopupWindow();
     }
 
     void refreshItemsName(){
@@ -409,6 +420,11 @@ public class SongListFragment extends BaseFragment
             showOperatePopupWindow();
             setSelectNumber();
         }
+    }
+
+    @Override
+    public void onSongListDeleteButtonClick(View view, int position) {
+
     }
 }
 

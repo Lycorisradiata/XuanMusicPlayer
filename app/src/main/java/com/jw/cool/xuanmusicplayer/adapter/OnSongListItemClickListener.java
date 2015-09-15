@@ -8,4 +8,5 @@ import android.view.View;
 public interface OnSongListItemClickListener {
     void onSongListItemClick(View view, int position);
     void onSongListItemLongClick(View view, int position);
+    void onSongListDeleteButtonClick(View view, int position);
 }

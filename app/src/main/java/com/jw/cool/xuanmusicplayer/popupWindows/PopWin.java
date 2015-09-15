@@ -6,7 +6,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 
 import com.jw.cool.xuanmusicplayer.R;
 
@@ -44,6 +46,26 @@ public class PopWin {
         Button selectCancel = (Button) layout.findViewById(R.id.select_cancel);
         selectCancel.setOnClickListener(listener);
         Button selectNumber = (Button) layout.findViewById(R.id.select_number);
+        PopupWindow selectPopupWindow = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        selectPopupWindow.setTouchable(true);
+        selectPopupWindow.setTouchInterceptor(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+//                Log.d(TAG, "onTouch ");
+                return false;
+            }
+        });
+//            selectPopupWindow.setBackgroundDrawable(
+//                    new ColorDrawable(getResources().getDrawable(R.color.select_popup_window_background));
+
+        return selectPopupWindow;
+    }
+
+    public static PopupWindow getPlayWindow(Context context, View.OnClickListener listener){
+        View layout =  LayoutInflater.from(context).inflate(R.layout.play_popup_window, null);
+        ImageButton playOrPause = (ImageButton) layout.findViewById(R.id.play_popup_play_or_pause);
+//        playOrPause.setOnClickListener(listener);
+        TextView textView = (TextView) layout.findViewById(R.id.play_popup_text);
         PopupWindow selectPopupWindow = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         selectPopupWindow.setTouchable(true);
         selectPopupWindow.setTouchInterceptor(new View.OnTouchListener() {

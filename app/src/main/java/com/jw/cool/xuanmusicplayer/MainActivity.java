@@ -21,14 +21,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.PopupWindow;
 
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
 import com.jw.cool.xuanmusicplayer.fragments.BaseFragment;
 import com.jw.cool.xuanmusicplayer.fragments.PlayListFragment;
 import com.jw.cool.xuanmusicplayer.fragments.SongListFragment;
+import com.jw.cool.xuanmusicplayer.popupWindows.PopWin;
 import com.jw.cool.xuanmusicplayer.utils.HandlerScreen;
 
 import java.util.ArrayList;
@@ -86,7 +89,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume ");
+
     }
+
 
     @Override
     protected void onStop() {
