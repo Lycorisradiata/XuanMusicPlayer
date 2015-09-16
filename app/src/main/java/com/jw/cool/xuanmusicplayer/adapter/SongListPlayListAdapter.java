@@ -56,6 +56,40 @@ public class SongListPlayListAdapter extends RecyclerView.Adapter<MyViewHolder> 
                 listener.onSongListItemClick(v, position);
             }
         });
+        SwipeLayout swipe_layout = (SwipeLayout) view.findViewById(R.id.swipe_layout);
+        swipe_layout.addSwipeListener(new SwipeLayout.SwipeListener() {
+            @Override
+            public void onStartOpen(SwipeLayout swipeLayout) {
+                listener.onSongListItemLongClick(view, position);
+            }
+
+            @Override
+            public void onOpen(SwipeLayout swipeLayout) {
+
+            }
+
+            @Override
+            public void onStartClose(SwipeLayout swipeLayout) {
+
+            }
+
+            @Override
+            public void onClose(SwipeLayout swipeLayout) {
+
+            }
+
+            @Override
+            public void onUpdate(SwipeLayout swipeLayout, int i, int i1) {
+
+            }
+
+            @Override
+            public void onHandRelease(SwipeLayout swipeLayout, float v, float v1) {
+
+            }
+        });
+        swipe_layout.setLeftSwipeEnabled(true);
+
         holder.position = position;
     }
 

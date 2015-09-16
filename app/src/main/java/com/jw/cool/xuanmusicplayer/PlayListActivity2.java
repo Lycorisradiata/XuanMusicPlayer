@@ -1,34 +1,21 @@
-package com.jw.cool.xuanmusicplayer.fragments;
+package com.jw.cool.xuanmusicplayer;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.widget.SlidingPaneLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.daimajia.swipe.SimpleSwipeListener;
-import com.daimajia.swipe.SwipeLayout;
-import com.jw.cool.xuanmusicplayer.PlayListActivity2;
-import com.jw.cool.xuanmusicplayer.SlidingPaneLayoutActivity;
 import com.jw.cool.xuanmusicplayer.adapter.DividerItemDecoration;
 import com.jw.cool.xuanmusicplayer.adapter.OnPlayListItemListener;
 import com.jw.cool.xuanmusicplayer.adapter.OnSongListItemClickListener;
 import com.jw.cool.xuanmusicplayer.adapter.PlayListAdapter;
-import com.jw.cool.xuanmusicplayer.adapter.SPNavigationItem;
-import com.jw.cool.xuanmusicplayer.adapter.SongListAdapter;
-import com.jw.cool.xuanmusicplayer.PlaylistActivity;
-import com.jw.cool.xuanmusicplayer.R;
 import com.jw.cool.xuanmusicplayer.adapter.SongListPlayListAdapter;
 import com.jw.cool.xuanmusicplayer.coreservice.MediaInfo;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
@@ -40,62 +27,78 @@ import java.util.List;
 
 import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
-public class PlayListFragment extends BaseFragment
+/**
+ * Created by Administrator on 15-9-16.
+ */
+public class PlayListActivity2 extends AppCompatActivity
         implements OnSongListItemClickListener, OnPlayListItemListener {
-    private static final String TAG = "PlayListFragment";
+    private static final String TAG = "PlayListActivity2";
     RecyclerView recyclerPlayList, recyclerSongList ;
     RecyclerView.Adapter adapterPlayList, adapterSongList;
     List<PlayList> playLists;
     List<MediaInfo> songList;
     List<String> itemsNamePlayList, itemsNameSongList;
-    List<SPNavigationItem> navigationItems;
+    List<>
     boolean[] selectedStatus;
-    int selectedItemsCount;
+//    int selectedItemsCount;
     SlidingPaneLayout spl = null;
-
-    public static PlayListFragment newInstance(Context context,Bundle bundle) {
-        PlayListFragment newFragment = new PlayListFragment();
-        newFragment.setArguments(bundle);
-        return newFragment;
-    }
-
+    CollapsingToolbarLayout collapsingToolbarLayout;
+//    CoordinatorLayout rootLayout;
+    
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_playlist2);
+        collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbarLayout);
+        collapsingToolbarLayout.setTitle("PlayList");
+        spl = (SlidingPaneLayout) findViewById(R.id.sliding_pane_layout_2);
+        initRecyclePlayList();
+        initRecycleSongList();
+        spl.setPanelSlideListener(new SlidingPaneLayout.PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
+//                Log.d(TAG, "onPanelSlide "+spl.getX()+" "+" "+spl.getParallaxDistance()
+//                +" " + spl.getHorizontalFadingEdgeLength() + " " + spl.getWidth()
+//                + " " + spl.getPaddingLeft() + " " + spl.getTranslationX() + " " + slideOffset);
+            }
+
+            @Override
+            public void onPanelOpened(View panel) {
+
+            }
+
+            @Override
+            public void onPanelClosed(View panel) {
+
+            }
+        });
+        spl.setParallaxDistance(200);
+
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view  = inflater.inflate(R.layout.fragment_play_list, container, false);
-        spl = (SlidingPaneLayout) view.findViewById(R.id.slidingpanellayout);
-        initRecyclePlayList(view);
-        initRecycleSongList(view);
-        return view;
-    }
-
-    void initRecyclePlayList(View view){
-        recyclerPlayList = (RecyclerView) view.findViewById(R.id.play_list);
-        recyclerPlayList.setHasFixedSize(true);//使RecyclerView保持固定的大小,这样会提高RecyclerView的性能。
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
+    void initRecyclePlayList(){
+//        RecyclerViewHeader header = RecyclerViewHeader.fromXml(context, R.layout.header);
+        recyclerPlayList = (RecyclerView) findViewById(R.id.play_list_left);
+//        recyclerPlayList.setHasFixedSize(true);//使RecyclerView保持固定的大小,这样会提高RecyclerView的性能。
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerPlayList.setLayoutManager(layoutManager);
         playLists = MusicRetriever.getInstance().getPlaylist();
         refreshItemsNamePlayList();
         selectedStatus = new boolean[itemsNamePlayList.size()];
-        adapterPlayList = new PlayListAdapter(getContext(), itemsNamePlayList, this);
+        adapterPlayList = new PlayListAdapter(this, itemsNamePlayList, this);
         recyclerPlayList.setAdapter(adapterPlayList);
     }
 
-    void initRecycleSongList(View view){
-        recyclerSongList = (RecyclerView) view.findViewById(R.id.song_list_play_list);
-        recyclerSongList.setHasFixedSize(true);//使RecyclerView保持固定的大小,这样会提高RecyclerView的性能。
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
+    void initRecycleSongList(){
+        recyclerSongList = (RecyclerView) findViewById(R.id.song_list_right);
+//        recyclerSongList.setHasFixedSize(true);//使RecyclerView保持固定的大小,这样会提高RecyclerView的性能。
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerSongList.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider)));
         recyclerSongList.setItemAnimator(new FadeInLeftAnimator());
         recyclerSongList.setLayoutManager(layoutManager);
         updateSongList(playLists.get(0).getId());
         refreshItemsNameSongList();
-        adapterSongList = new SongListPlayListAdapter(getContext(), itemsNameSongList, this);
+        adapterSongList = new SongListPlayListAdapter(this, itemsNameSongList, this);
 //        ((RecyclerSwipeAdapter) adapterPlayList).setMode(Attributes.Mode.Single);
         recyclerSongList.setAdapter(adapterSongList);
     }
@@ -103,6 +106,9 @@ public class PlayListFragment extends BaseFragment
     void updateSongList(long id){
         songList = MusicRetriever.getInstance().getPlaylistItems(id);
         refreshItemsNameSongList();
+        if(adapterSongList != null){
+            adapterSongList.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -110,17 +116,6 @@ public class PlayListFragment extends BaseFragment
         super.onStart();
         updateSongList(playLists.get(0).getId());
         spl.openPane();
-    }
-
-
-    void refreshNavigationItems(){
-        if(navigationItems == null){
-            navigationItems = new ArrayList<>();
-        }
-
-        for(PlayList item:playLists){
-//            navigationItems
-        }
     }
 
     void refreshItemsNamePlayList(){
@@ -153,7 +148,7 @@ public class PlayListFragment extends BaseFragment
     }
 
     void toPlaylistActivity(int position){
-        Intent intent = new Intent(getContext(), PlaylistActivity.class);
+        Intent intent = new Intent(this, PlaylistActivity.class);
         PlayList item = playLists.get(position);
         Bundle bundle = new Bundle();
         bundle.putLong("id", item.getId());
@@ -167,7 +162,7 @@ public class PlayListFragment extends BaseFragment
     public void onSongListItemClick(View view, int position) {
 //        toPlaylistActivity(position);
 //        textView.setText(String.valueOf(position));
-//        Intent intent = new Intent(getContext(), SlidingPaneLayoutActivity.class);
+//        Intent intent = new Intent(this, SlidingPaneLayoutActivity.class);
 //        PlayList item = playLists.get(position);
 //        Bundle bundle = new Bundle();
 //        bundle.putLong("id", item.getId());
@@ -181,28 +176,26 @@ public class PlayListFragment extends BaseFragment
 
     @Override
     public void onSongListItemLongClick(View view, int position) {
-
+        Log.d(TAG, "onSongListItemLongClick closePane");
+        if(spl.isOpen()){
+            spl.closePane();
+        }
     }
 
     @Override
     public void onSongListDeleteButtonClick(View view, int position) {
-
+        Log.d(TAG, "onSongListDeleteButtonClick ");
     }
 
     @Override
     public void onPlayListItemClick(View v, int pos) {
-
+        Log.d(TAG, "onPlayListItemClick ");
+        updateSongList(playLists.get(pos).getId());
     }
 
     @Override
     public void onPlayListDeleteButtonClick(View v, int pos) {
-        Intent intent = new Intent(getContext(), PlayListActivity2.class);
-//        PlayList item = playLists.get(position);
-//        Bundle bundle = new Bundle();
-//        bundle.putLong("id", item.getId());
-//        bundle.putString("name", item.getName());
-//        intent.putExtras(bundle);
-
-        startActivity(intent);
+        Log.d(TAG, "onPlayListDeleteButtonClick ");
     }
+    
 }
