@@ -225,4 +225,9 @@ public class PlaylistActivity extends AppCompatActivity
     public void onPlayListDeleteButtonClick(View v, int pos) {
 
     }
+
+    @Override
+    public void onPlayListCreateButtonClick(View v, int pos) {
+
+    }
 }

@@ -28,6 +28,9 @@
     <string name="ok">确定</string>
     <string name="cancel">取消</string>
 
+    <string name="all_songs">所有歌曲</string>
+    <string name="play_list">播放列表</string>
+
     <string-array name="tabTitles">
         <item>歌曲列表</item>
         <item>播放列表</item>
@@ -45,6 +48,12 @@
         <item>B</item>
         <item>C</item>
     </string-array>
+    <string-array name="sp_navigation_items">
+        <item>@string/all_songs</item>
+        <item>@string/play_list</item>
+    </string-array>
 
+    <string name="delete">删除</string>
+    <string name="create">新建</string>
 
 </resources>

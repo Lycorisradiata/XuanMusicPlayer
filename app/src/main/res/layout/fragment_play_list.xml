@@ -4,20 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <com.jw.cool.xuanmusicplayer.PagerEnabledSlidingPaneLayout
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/slidingpanellayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/play_list"
-            android:layout_width="100dp"
-            android:layout_height="match_parent"
-            android:background="@color/primary_light"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
         <include android:id="@+id/song_list_play_list"
             layout="@layout/fragment_song_list"/>
-    </com.jw.cool.xuanmusicplayer.PagerEnabledSlidingPaneLayout>
 </RelativeLayout>
 
 

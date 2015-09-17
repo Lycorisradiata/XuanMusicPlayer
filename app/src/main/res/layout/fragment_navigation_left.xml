@@ -1,0 +1,21 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.jw.cool.xuanmusicplayer.NavigationLeftFragment">
+    <TextView
+        android:id="@+id/nav_all_songs"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/nav_main_text_height" />
+    <TextView
+        android:id="@+id/nav_play_list"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/nav_main_text_height" />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/nav_play_list_items"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+</LinearLayout>

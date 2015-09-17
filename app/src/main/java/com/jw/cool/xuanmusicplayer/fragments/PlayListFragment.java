@@ -24,6 +24,7 @@ import com.jw.cool.xuanmusicplayer.adapter.DividerItemDecoration;
 import com.jw.cool.xuanmusicplayer.adapter.OnPlayListItemListener;
 import com.jw.cool.xuanmusicplayer.adapter.OnSongListItemClickListener;
 import com.jw.cool.xuanmusicplayer.adapter.PlayListAdapter;
+import com.jw.cool.xuanmusicplayer.adapter.SPNavigationItem;
 import com.jw.cool.xuanmusicplayer.adapter.SongListAdapter;
 import com.jw.cool.xuanmusicplayer.PlaylistActivity;
 import com.jw.cool.xuanmusicplayer.R;
@@ -46,6 +47,7 @@ public class PlayListFragment extends BaseFragment
     List<PlayList> playLists;
     List<MediaInfo> songList;
     List<String> itemsNamePlayList, itemsNameSongList;
+    List<SPNavigationItem> navigationItems;
     boolean[] selectedStatus;
     int selectedItemsCount;
     SlidingPaneLayout spl = null;
@@ -65,14 +67,14 @@ public class PlayListFragment extends BaseFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view  = inflater.inflate(R.layout.fragment_play_list, container, false);
-        spl = (SlidingPaneLayout) view.findViewById(R.id.slidingpanellayout);
+//        spl = (SlidingPaneLayout) view.findViewById(R.id.slidingpanellayout);
         initRecyclePlayList(view);
         initRecycleSongList(view);
         return view;
     }
 
     void initRecyclePlayList(View view){
-        recyclerPlayList = (RecyclerView) view.findViewById(R.id.play_list);
+//        recyclerPlayList = (RecyclerView) view.findViewById(R.id.play_list);
         recyclerPlayList.setHasFixedSize(true);//使RecyclerView保持固定的大小,这样会提高RecyclerView的性能。
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerPlayList.setLayoutManager(layoutManager);
@@ -107,6 +109,17 @@ public class PlayListFragment extends BaseFragment
         super.onStart();
         updateSongList(playLists.get(0).getId());
         spl.openPane();
+    }
+
+
+    void refreshNavigationItems(){
+        if(navigationItems == null){
+            navigationItems = new ArrayList<>();
+        }
+
+        for(PlayList item:playLists){
+//            navigationItems
+        }
     }
 
     void refreshItemsNamePlayList(){
@@ -182,6 +195,18 @@ public class PlayListFragment extends BaseFragment
 
     @Override
     public void onPlayListDeleteButtonClick(View v, int pos) {
+//        Intent intent = new Intent(getContext(), PlayListActivity2.class);
+//        PlayList item = playLists.get(position);
+//        Bundle bundle = new Bundle();
+//        bundle.putLong("id", item.getId());
+//        bundle.putString("name", item.getName());
+//        intent.putExtras(bundle);
+
+//        startActivity(intent);
+    }
+
+    @Override
+    public void onPlayListCreateButtonClick(View v, int pos) {
 
     }
 }

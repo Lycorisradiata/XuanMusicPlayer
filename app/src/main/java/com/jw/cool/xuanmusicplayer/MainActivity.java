@@ -29,7 +29,6 @@ import android.widget.PopupWindow;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
 import com.jw.cool.xuanmusicplayer.fragments.BaseFragment;
-import com.jw.cool.xuanmusicplayer.fragments.PlayListFragment;
 import com.jw.cool.xuanmusicplayer.fragments.SongListFragment;
 import com.jw.cool.xuanmusicplayer.popupWindows.PopWin;
 import com.jw.cool.xuanmusicplayer.utils.HandlerScreen;
@@ -152,11 +151,11 @@ public class MainActivity extends AppCompatActivity {
         Bundle bundle = new Bundle();
         Fragment songListFragment = SongListFragment.newInstance(
                 MainActivity.this, bundle);
-        Fragment playlistFragment = PlayListFragment.newInstance(
-                MainActivity.this, bundle);
+//        Fragment playlistFragment = PlayListFragment.newInstance(
+//                MainActivity.this, bundle);
 
         fragmentsList.add(songListFragment);
-        fragmentsList.add(playlistFragment);
+//        fragmentsList.add(playlistFragment);
         TabFragmentPagerAdapter tabFragmentPagerAdapter = new TabFragmentPagerAdapter(
                 getSupportFragmentManager(), fragmentsList);
         viewPager.setAdapter(new TabFragmentPagerAdapter(
