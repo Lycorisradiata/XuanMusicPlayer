@@ -30,8 +30,6 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.ViewHo
         this.selectedStatus = selectedStatus;
     }
 
-
-
     @Override
         public SongListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view =

@@ -4,24 +4,18 @@
 <com.daimajia.swipe.SwipeLayout
     android:id="@+id/swipe_layout"
     android:layout_width="match_parent" android:layout_height="match_parent">
-    <!-- Bottom View Start-->
     <LinearLayout
         android:background="@color/song_list_item_background"
         android:id="@+id/bottom_wrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
-        >
-
+        android:orientation="horizontal">
         <Button
             android:id="@+id/swipe_item_delete"
             android:layout_width="wrap_content"
             android:layout_height="match_parent" />
-        <!--What you want to show-->
     </LinearLayout>
-    <!-- Bottom View End-->
 
-    <!-- Surface View Start -->
     <LinearLayout
         android:background="@color/song_list_item_background"
         android:layout_width="wrap_content"
@@ -30,16 +24,7 @@
         <TextView
             android:id="@+id/swipe_item_top"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"/>
-        <TextView
-            android:id="@+id/swipe_item_top_sub"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="20dp"
-            android:visibility="gone"/>
-        <!--What you want to show in SurfaceView-->
+            android:layout_height="wrap_content" />
     </LinearLayout>
-    <!-- Surface View End -->
 </com.daimajia.swipe.SwipeLayout>
 </RelativeLayout>

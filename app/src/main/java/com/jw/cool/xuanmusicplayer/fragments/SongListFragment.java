@@ -55,8 +55,6 @@ public class SongListFragment extends BaseFragment
     List<String> itemsName;
     boolean isRetrieverPrepared;
 
-
-
     void setSelectNumber(){
         String sAgeFormat = getResources().getString(R.string.select_items_count);
         String sFinalAge = String.format(sAgeFormat, selectedItemsCount);
@@ -141,14 +139,17 @@ public class SongListFragment extends BaseFragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         recyclerView = (RecyclerView) inflater.inflate(R.layout.fragment_song_list, container, false);
         recyclerView.setHasFixedSize(true);//使RecyclerView保持固定的大小,这样会提高RecyclerView的性能。
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
         itemList = MusicRetriever.getInstance().getItems();
         refreshItemsName();
+        Log.d(TAG, "onCreateView itemsName " + itemsName + " " + itemsName.size());
         adapter = new SongListAdapter(getContext(), itemsName, this);
         recyclerView.setAdapter(adapter);
+
         return recyclerView;
     }
 

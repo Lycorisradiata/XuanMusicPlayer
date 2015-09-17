@@ -8,4 +8,5 @@ import android.view.View;
 public interface OnPlayListItemListener {
     void onPlayListItemClick(View v, int pos);
     void onPlayListDeleteButtonClick(View v, int pos);
+    void onPlayListCreateButtonClick(View v, int pos);
 }
