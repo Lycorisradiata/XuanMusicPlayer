@@ -13,7 +13,7 @@ import android.widget.TextView;
 import com.jw.cool.xuanmusicplayer.coreservice.MediaInfo;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
-import com.jw.cool.xuanmusicplayer.events.CompletionEvent;
+import com.jw.cool.xuanmusicplayer.events.MediaPlayerStatusEvent;
 import com.jw.cool.xuanmusicplayer.events.ProcessEvent;
 import com.jw.cool.xuanmusicplayer.utils.HandlerScreen;
 import com.jw.cool.xuanmusicplayer.utils.HandlerTime;
@@ -90,13 +90,13 @@ public class PlayActivity extends Activity implements View.OnClickListener{
         currentTime.setText(HandlerTime.seconds2HHMMSS(event.currentPos / 1000));
         seekBar.setProgress(event.currentPos * 100 / event.totalMilliSeconds);
     }
-    public void onEvent(CompletionEvent event) {
-        Log.d(TAG, "onEventThread event.isCompleted " + event.isCompleted);
-        if(event.isCompleted){
+
+    public void onEvent(MediaPlayerStatusEvent event){
+        Log.d(TAG, "onEvent event.isPrepared() " + event.isPrepared());
+        if(event.isPrepared()){
             isNeedRefreshMediaInfo = true;
         }
     }
-
 
     void refresh(MediaInfo item){
         Log.d(TAG, "refresh item " + isNeedRefreshMediaInfo);

@@ -78,4 +78,10 @@
         <item name="colorAccent">@color/accent</item>
     </style>
 
+    <style name="NAV_TEXT_VIEW">
+        <item name="android:layout_height">@dimen/nav_main_text_height</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
 </resources>

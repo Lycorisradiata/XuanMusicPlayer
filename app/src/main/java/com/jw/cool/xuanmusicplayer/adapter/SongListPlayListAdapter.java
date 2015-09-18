@@ -41,6 +41,7 @@ public class SongListPlayListAdapter extends RecyclerView.Adapter<MyViewHolder> 
         final View view = holder.mView;
         TextView textView = (TextView)view.findViewById(R.id.swipe_item_top);
         textView.setText(list.get(position));
+//        textView.setEnabled(false);
         Button button = (Button) view.findViewById(R.id.swipe_item_delete);
         button.setText("delete");
         button.setOnClickListener(new View.OnClickListener() {
@@ -50,6 +51,7 @@ public class SongListPlayListAdapter extends RecyclerView.Adapter<MyViewHolder> 
             }
         });
 
+//        View layout = view.findViewById(R.id.swipe_item_layout_top);
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

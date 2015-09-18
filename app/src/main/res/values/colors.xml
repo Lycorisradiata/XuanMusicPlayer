@@ -18,4 +18,5 @@
     <color name="icons">#FFFFFF</color>
     <color name="divider">#B6B6B6</color>
     <color name="song_list_item_background">#80008fff</color>
+    <color name="nav_sp_left_background">#8000ff80</color>
 </resources>

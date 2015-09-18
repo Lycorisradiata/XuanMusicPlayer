@@ -2,11 +2,13 @@ package com.jw.cool.xuanmusicplayer.coreservice;
 
 import android.content.ContentUris;
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Created by jw on 2015/9/2.
  */
-public class MediaInfo {
+public class MediaInfo implements Parcelable {
     long id;
     String artist;
     String title;
@@ -79,4 +81,43 @@ public class MediaInfo {
         return ContentUris.withAppendedId(
                 android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.id);
+        dest.writeString(this.artist);
+        dest.writeString(this.title);
+        dest.writeString(this.album);
+        dest.writeLong(this.duration);
+        dest.writeString(this.displayName);
+        dest.writeLong(this.albumId);
+        dest.writeString(this.path);
+    }
+
+    protected MediaInfo(Parcel in) {
+        this.id = in.readLong();
+        this.artist = in.readString();
+        this.title = in.readString();
+        this.album = in.readString();
+        this.duration = in.readLong();
+        this.displayName = in.readString();
+        this.albumId = in.readLong();
+        this.path = in.readString();
+    }
+
+    public static final Parcelable.Creator<MediaInfo> CREATOR = new Parcelable.Creator<MediaInfo>() {
+        public MediaInfo createFromParcel(Parcel source) {
+            return new MediaInfo(source);
+        }
+
+        public MediaInfo[] newArray(int size) {
+            return new MediaInfo[size];
+        }
+    };
 }

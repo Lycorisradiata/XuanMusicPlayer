@@ -148,10 +148,15 @@ public class MusicRetriever {
                 MediaStore.Audio.Playlists.Members.DATA
         };
 
-        Cursor cursor = getContentResolver().query(uri, showColumns,
-                MediaStore.Audio.Playlists.Members.PLAYLIST_ID + "=?",
-                new String[]{Long.toString(playlistId)},
-                null);
+//        Cursor cursor = getContentResolver().query(uri, showColumns,
+//                MediaStore.Audio.Playlists.Members.PLAYLIST_ID + "=?",
+//                new String[]{Long.toString(playlistId)},
+//                null);
+        Log.d(TAG, "getPlaylistItems null null");
+                Cursor cursor = getContentResolver().query(uri, showColumns,
+                        null,
+                        null,
+                        null);
         if(cursor == null || !cursor.moveToFirst()) {
             Log.d(TAG, "getPlaylistItems failed!");
             return playlistItems;
@@ -245,6 +250,41 @@ public class MusicRetriever {
             }
         }
         return id;
+    }
+
+    public void deletePlaylist(long playlistId){
+        Log.d(TAG, "deletePlayList playListId " + playlistId);
+        getContentResolver().delete(
+                MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,
+                MediaStore.Audio.Playlists._ID + "=?", new String[]{String.valueOf(playlistId)});
+    }
+
+    public void deletePlayListSong(long playlistId, long audioId){
+        Log.d(TAG, "deletePlayListSong audioId " + audioId);
+        Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", playlistId);
+        getContentResolver().delete(uri, MediaStore.Audio.Playlists.Members.AUDIO_ID + "=?",
+                                    new String[]{String.valueOf(audioId)});
+    }
+
+    public void deletePlayListSongs(long playlistId, List<Long> audioIds){
+        Log.d(TAG, "deletePlayListSongs audioIds " + audioIds.size());
+        Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", playlistId);
+        ArrayList<ContentProviderOperation> ops = new ArrayList<>();
+        for(Long audioId: audioIds){
+            ops.add(ContentProviderOperation.newDelete(uri)
+                    .withSelection(MediaStore.Audio.Playlists.Members.AUDIO_ID + "=?",
+                            new String[]{String.valueOf(audioId)})
+                    .withYieldAllowed(true)
+                    .build());
+        }
+
+        try {
+            getContentResolver().applyBatch(MediaStore.AUTHORITY, ops);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        } catch (OperationApplicationException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

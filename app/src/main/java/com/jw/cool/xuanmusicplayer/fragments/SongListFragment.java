@@ -20,6 +20,7 @@ import android.widget.PopupWindow;
 
 import com.jw.cool.xuanmusicplayer.PlayActivity;
 import com.jw.cool.xuanmusicplayer.R;
+import com.jw.cool.xuanmusicplayer.adapter.DividerItemDecoration;
 import com.jw.cool.xuanmusicplayer.adapter.OnSongListItemClickListener;
 import com.jw.cool.xuanmusicplayer.adapter.SongListAdapter;
 import com.jw.cool.xuanmusicplayer.coreservice.MediaInfo;
@@ -27,8 +28,10 @@ import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplayer.coreservice.PlayList;
 import com.jw.cool.xuanmusicplayer.coreservice.PlaylistItem;
+import com.jw.cool.xuanmusicplayer.events.PlaylistEvent;
 import com.jw.cool.xuanmusicplayer.events.RetrieverPreparedEvent;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
+import com.jw.cool.xuanmusicplayer.events.SlidingPaneLayoutEvent;
 import com.jw.cool.xuanmusicplayer.popupWindows.PopWin;
 import com.jw.cool.xuanmusicplayer.utils.HandlerFile;
 import com.jw.cool.xuanmusicplayer.utils.HandlerScreen;
@@ -36,6 +39,9 @@ import com.jw.cool.xuanmusicplayer.utils.HandlerScreen;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import de.greenrobot.event.EventBus;
+import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
 import static android.content.DialogInterface.OnClickListener;
 
@@ -108,7 +114,7 @@ public class SongListFragment extends BaseFragment
         setSelectNumber();
     }
 
-    /**
+    /**是否需要通知刷新界面（即当前页面是否有数据更新），需要刷新则notify赋值true
      * */
     void dismissPopupWindows(Boolean notify){
         Log.d(TAG, "dismissPopupWindows ");
@@ -144,6 +150,8 @@ public class SongListFragment extends BaseFragment
         recyclerView.setHasFixedSize(true);//使RecyclerView保持固定的大小,这样会提高RecyclerView的性能。
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
+        recyclerView.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider)));
+        recyclerView.setItemAnimator(new FadeInLeftAnimator());
         itemList = MusicRetriever.getInstance().getItems();
         refreshItemsName();
         Log.d(TAG, "onCreateView itemsName " + itemsName + " " + itemsName.size());
@@ -161,6 +169,7 @@ public class SongListFragment extends BaseFragment
     @Override
     public boolean handleBackPressed() {
         super.handleBackPressed();
+        Log.d(TAG, "handleBackPressed isNeedShowSelectBox " + isNeedShowSelectBox);
         if(isNeedShowSelectBox){
             dismissPopupWindows(true);
             return true;
@@ -296,7 +305,9 @@ public class SongListFragment extends BaseFragment
                             MusicRetriever.getInstance().addToPlaylist(
                                     getPlaylistItemsNeedAdd(), playlistId);
                         }
-
+                        dismissPopupWindows(true);
+                        Log.d(TAG, "onClick create playlist");
+                        EventBus.getDefault().post(new PlaylistEvent(true));
                         break;
                     case DialogInterface.BUTTON_NEGATIVE:
                         break;
@@ -395,12 +406,10 @@ public class SongListFragment extends BaseFragment
             Intent intent = new Intent();
             intent.setAction(MusicService.ACTION_PLAY);
             MediaInfo item = itemList.get(position);
+            MusicRetriever.getInstance().setIsPlaylistMode(false);
             MusicRetriever.getInstance().setCurrentPos(item);
             Bundle bundle = new Bundle();
-            bundle.putLong("id", item.getId());
-            bundle.putLong("duration", item.getDuration());
-            bundle.putString("title", item.getTitle());
-            bundle.putString("displayName", item.getDisplayName());
+            bundle.putParcelable("MediaInfo", item);
             intent.putExtras(bundle);
 
             getActivity().startService(intent);
@@ -410,7 +419,9 @@ public class SongListFragment extends BaseFragment
 
     @Override
     public void onSongListItemLongClick(View view, int position) {
+        Log.d(TAG, "onSongListItemLongClick " + isNeedShowSelectBox);
         if(!isNeedShowSelectBox){
+            EventBus.getDefault().post(new SlidingPaneLayoutEvent(true));
             isNeedShowSelectBox = true;
             selectedStatus = new boolean[itemList.size()];
             selectedStatus[position] = true;

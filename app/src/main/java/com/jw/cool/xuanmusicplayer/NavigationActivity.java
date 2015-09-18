@@ -6,34 +6,20 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
-import android.widget.FrameLayout;
 
-import com.jw.cool.xuanmusicplayer.adapter.DividerItemDecoration;
-import com.jw.cool.xuanmusicplayer.adapter.OnPlayListItemListener;
-import com.jw.cool.xuanmusicplayer.adapter.OnSongListItemClickListener;
-import com.jw.cool.xuanmusicplayer.adapter.PlayListAdapter;
-import com.jw.cool.xuanmusicplayer.adapter.SPNavigationItem;
-import com.jw.cool.xuanmusicplayer.adapter.SongListPlayListAdapter;
-import com.jw.cool.xuanmusicplayer.coreservice.MediaInfo;
-import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
-import com.jw.cool.xuanmusicplayer.coreservice.PlayList;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
+import com.jw.cool.xuanmusicplayer.events.SlidingPaneLayoutEvent;
 import com.jw.cool.xuanmusicplayer.events.SwitchFragmentEvent;
+import com.jw.cool.xuanmusicplayer.fragments.BaseFragment;
+import com.jw.cool.xuanmusicplayer.fragments.NavigationLeftFragment;
 import com.jw.cool.xuanmusicplayer.fragments.PlayListSongsFragment;
 import com.jw.cool.xuanmusicplayer.fragments.SettingsFragment;
 import com.jw.cool.xuanmusicplayer.fragments.SongListFragment;
 import com.jw.cool.xuanmusicplayer.utils.HandlerScreen;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import de.greenrobot.event.EventBus;
-import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
 /**
  * Created by Administrator on 15-9-16.
@@ -44,7 +30,7 @@ public class NavigationActivity extends AppCompatActivity{
     CollapsingToolbarLayout collapsingToolbarLayout;
     Fragment playListSongsFragment;
     Fragment songsListFragment;
-    boolean hasAddRightFragment;
+    Fragment settingsFragment;
     String currentFragment = "";
     
     @Override
@@ -56,11 +42,13 @@ public class NavigationActivity extends AppCompatActivity{
         startService(intent);
         getSupportFragmentManager().beginTransaction().add(R.id.navigation_sp_left,
                 new NavigationLeftFragment()).commit();
-        toSongsListFragment(null);
+        songsListFragment = new SongListFragment();
+        getSupportFragmentManager().beginTransaction().add(R.id.navigation_sp_right,
+                songsListFragment).commit();
+        currentFragment = SongListFragment.class.getName();
         collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbarLayout);
         collapsingToolbarLayout.setTitle("PlayList");
         spl = (SlidingPaneLayout) findViewById(R.id.sliding_pane_layout_2);
-        EventBus.getDefault().register(this);
         spl.openPane();
 //        spl.setParallaxDistance(200);
     }
@@ -68,6 +56,7 @@ public class NavigationActivity extends AppCompatActivity{
     @Override
     public void onStart() {
         super.onStart();
+        EventBus.getDefault().register(this);
     }
 
     public void onEvent(SwitchFragmentEvent event) {
@@ -75,9 +64,11 @@ public class NavigationActivity extends AppCompatActivity{
         String name = event.getFragmentName();
 
         if(SongListFragment.class.getName().equals(name)){
-            toSongsListFragment(event);
+            toSongsListFragment();
         }else if(PlayListSongsFragment.class.getName().equals(name)){
             toPlayListSongsFragment(event);
+        }else if (SettingsFragment.class.getName().equals(name)){
+            toSettingsFragment();
         }
         currentFragment = name;
         Log.d(TAG, "onEvent ");
@@ -96,34 +87,50 @@ public class NavigationActivity extends AppCompatActivity{
             getSupportFragmentManager().beginTransaction().replace(R.id.navigation_sp_right,
                     playListSongsFragment).commit();
         }
-
     }
 
-    void toSongsListFragment(SwitchFragmentEvent event){
+    void toSongsListFragment(){
         Log.d(TAG, "toSongsListFragment ");
-        if(event != null && songsListFragment != null
-                && currentFragment.equals(event.getFragmentName())){
-            return;
-        }
-
         if(songsListFragment == null){
             songsListFragment = new SongListFragment();
         }
+        getSupportFragmentManager().beginTransaction().replace(R.id.navigation_sp_right,
+                songsListFragment).commit();
+    }
 
-        if(hasAddRightFragment){
-            getSupportFragmentManager().beginTransaction().replace(R.id.navigation_sp_right,
-                    songsListFragment).commit();
-        }else{
-            hasAddRightFragment = true;
-            getSupportFragmentManager().beginTransaction().add(R.id.navigation_sp_right,
-                    songsListFragment).commit();
+    void toSettingsFragment(){
+        if(settingsFragment == null){
+            settingsFragment = new SettingsFragment();
         }
-
+        getSupportFragmentManager().beginTransaction().replace(R.id.navigation_sp_right,
+                settingsFragment).commit();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG, "onBackPressed currentFragment " + currentFragment);
+        boolean isSame = currentFragment.equals(SongListFragment.class.getName());
+
+        if(isSame){
+            if(((BaseFragment)songsListFragment).handleBackPressed()){
+                Log.d(TAG, "onBackPressed songsListFragment consume");
+                return;
+            }
+        }
+
+        super.onBackPressed();
+    }
+
+    public void onEvent(SlidingPaneLayoutEvent event){
+        Log.d(TAG, "onEvent SlidingPaneLayoutEvent " + event.isNeedClose());
+        if(event.isNeedClose() && spl.isOpen()){
+            spl.closePane();
+        }
     }
 }

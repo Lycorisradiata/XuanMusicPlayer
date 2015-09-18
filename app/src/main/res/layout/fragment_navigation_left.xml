@@ -1,21 +1,44 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.jw.cool.xuanmusicplayer.fragments.NavigationLeftFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.jw.cool.xuanmusicplayer.NavigationLeftFragment">
+    android:orientation="vertical">
     <TextView
+        style="@style/NAV_TEXT_VIEW"
+        android:id="@+id/nav_settings"
+        android:text="@string/settings" />
+    <TextView
+        style="@style/NAV_TEXT_VIEW"
         android:id="@+id/nav_all_songs"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/nav_main_text_height" />
+        android:text="@string/all_songs" />
     <TextView
+        style="@style/NAV_TEXT_VIEW"
         android:id="@+id/nav_play_list"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/nav_main_text_height" />
+        android:text="@string/play_list" />
     <android.support.v7.widget.RecyclerView
         android:id="@+id/nav_play_list_items"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:layout_height="200dp" />
+
 </LinearLayout>
+
+<!--<ListView
+    android:id="@+id/nav_play_list_list_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+</ListView>
+<android.support.v4.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.jw.cool.xuanmusicplayer.fragments.NavigationLeftFragment"
+    android:layout_height="match_parent" android:layout_width="match_parent">
+
+</android.support.v4.widget.NestedScrollView>-->
+

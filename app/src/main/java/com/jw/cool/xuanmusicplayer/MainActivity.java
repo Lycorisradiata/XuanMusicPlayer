@@ -151,8 +151,6 @@ public class MainActivity extends AppCompatActivity {
         Bundle bundle = new Bundle();
         Fragment songListFragment = SongListFragment.newInstance(
                 MainActivity.this, bundle);
-//        Fragment playlistFragment = PlayListFragment.newInstance(
-//                MainActivity.this, bundle);
 
         fragmentsList.add(songListFragment);
 //        fragmentsList.add(playlistFragment);

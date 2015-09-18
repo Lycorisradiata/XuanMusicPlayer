@@ -43,7 +43,7 @@ import android.widget.Toast;
 
 import com.jw.cool.xuanmusicplayer.MainActivity;
 import com.jw.cool.xuanmusicplayer.R;
-import com.jw.cool.xuanmusicplayer.events.CompletionEvent;
+import com.jw.cool.xuanmusicplayer.events.MediaPlayerStatusEvent;
 import com.jw.cool.xuanmusicplayer.events.ProcessEvent;
 import com.jw.cool.xuanmusicplayer.events.RetrieverPreparedEvent;
 
@@ -252,16 +252,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
                     processTogglePlaybackRequest();
                     break;
                 case ACTION_PLAY:
-                    Bundle bundle = intent.getExtras();
-                    String strEmpty = "";
-                    MediaInfo item = new MediaInfo(bundle.getLong("id"),
-                            strEmpty ,
-                            bundle.getString("title"),
-                            strEmpty,
-                            bundle.getLong("duration"),
-                            bundle.getString("displayName"),
-                            0,
-                            strEmpty);
+                    MediaInfo item = (MediaInfo)intent.getParcelableExtra("MediaInfo");
                     processPlayRequest(item);
                     break;
                 case ACTION_PAUSE:
@@ -601,8 +592,6 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     /** Called when media player is done playing current song. */
     public void onCompletion(MediaPlayer player) {
         // The media player finished playing the current song, so we go ahead and start the next.
-        Log.d(TAG, "onCompletion ");
-        EventBus.getDefault().post(new CompletionEvent(true));
         playNextSong(null, null);
     }
 
@@ -616,6 +605,8 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
     /** Called when media player is done preparing. */
     public void onPrepared(MediaPlayer player) {
+        Log.d(TAG, "onPrepared " + player.getDuration());
+        EventBus.getDefault().post(new MediaPlayerStatusEvent(true));
         // The media player is done preparing. That means we can start playing!
         mState = State.Playing;
         updateNotification(mSongTitle + " (playing)");

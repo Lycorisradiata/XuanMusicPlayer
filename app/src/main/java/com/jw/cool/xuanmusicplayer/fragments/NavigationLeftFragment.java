@@ -1,4 +1,4 @@
-package com.jw.cool.xuanmusicplayer;
+package com.jw.cool.xuanmusicplayer.fragments;
 
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -7,23 +7,27 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.jw.cool.xuanmusicplayer.R;
+import com.jw.cool.xuanmusicplayer.adapter.DividerItemDecoration;
 import com.jw.cool.xuanmusicplayer.adapter.OnPlayListItemListener;
 import com.jw.cool.xuanmusicplayer.adapter.PlayListAdapter;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
 import com.jw.cool.xuanmusicplayer.coreservice.PlayList;
+import com.jw.cool.xuanmusicplayer.events.PlaylistEvent;
 import com.jw.cool.xuanmusicplayer.events.RetrieverPreparedEvent;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
 import com.jw.cool.xuanmusicplayer.events.SwitchFragmentEvent;
-import com.jw.cool.xuanmusicplayer.fragments.BaseFragment;
-import com.jw.cool.xuanmusicplayer.fragments.PlayListSongsFragment;
-import com.jw.cool.xuanmusicplayer.fragments.SongListFragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
+import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
 public class NavigationLeftFragment extends BaseFragment implements OnPlayListItemListener{
     private static final String TAG = "NavigationLeftFragment";
@@ -34,6 +38,10 @@ public class NavigationLeftFragment extends BaseFragment implements OnPlayListIt
     List<String> playListNames;
     PlayListAdapter playListAdapter;
     private boolean isRetrieverPrepared;
+    private TextView mSettingsTextView;
+    private ListView mPlayListListViewListView;
+    //Android NestedScrolling 嵌套滑动详解
+//    http://www.race604.com/android-nested-scrolling/
 
 
     @Override
@@ -42,10 +50,9 @@ public class NavigationLeftFragment extends BaseFragment implements OnPlayListIt
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_navigation_left, container, false);
         mAllSongsTextView = (TextView) view.findViewById(R.id.nav_all_songs);
-        mAllSongsTextView.setText(R.string.all_songs);
         mPlayListTextView = (TextView) view.findViewById(R.id.nav_play_list);
-        mPlayListTextView.setText(R.string.play_list);
         mPlayListItemsRecyclerView = (RecyclerView) view.findViewById(R.id.nav_play_list_items);
+        mSettingsTextView = (TextView) view.findViewById(R.id.nav_settings);
         mAllSongsTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -59,8 +66,22 @@ public class NavigationLeftFragment extends BaseFragment implements OnPlayListIt
                 togglePlayListItems();
             }
         });
+        mSettingsTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EventBus.getDefault().post(new SwitchFragmentEvent(SettingsFragment.class.getName(), null));
+            }
+        });
         initRecyclePlayList();
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart NavigationLeftFragment");
+        refreshPlayList();
+        refreshPlayListsItems();
     }
 
     public void onEvent(RetrieverPreparedEvent event) {
@@ -80,9 +101,14 @@ public class NavigationLeftFragment extends BaseFragment implements OnPlayListIt
     }
 
     void initRecyclePlayList(){
+//        mPlayListListViewListView.setAdapter(new ArrayAdapter<String>(getContext(),
+//                android.R.layout.simple_list_item_1,
+//                new String[]{"lfasjld", "sdfklj2", "fklskjfljk3"}));
         mPlayListItemsRecyclerView.setHasFixedSize(true);//使RecyclerView保持固定的大小,这样会提高RecyclerView的性能。
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mPlayListItemsRecyclerView.setLayoutManager(layoutManager);
+        mPlayListItemsRecyclerView.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider)));
+        mPlayListItemsRecyclerView.setItemAnimator(new FadeInLeftAnimator());
         refreshPlayList();
         refreshPlayListsItems();
         Log.d(TAG, "initRecyclePlayList playListNames " + playListNames);
@@ -117,7 +143,14 @@ public class NavigationLeftFragment extends BaseFragment implements OnPlayListIt
 
     @Override
     public void onPlayListDeleteButtonClick(View v, int pos) {
+        long playlistId = playList.get(pos).getId();
+        playListAdapter.notifyItemRemoved(pos);
+        playList.remove(pos);
+        playListNames.remove(pos);
+        playListAdapter.notifyItemRangeChanged(pos, playListAdapter.getItemCount());
 
+        Log.d(TAG, "onPlayListDeleteButtonClick pos " + pos);
+        MusicRetriever.getInstance().deletePlaylist(playlistId);
     }
 
     @Override
@@ -128,4 +161,49 @@ public class NavigationLeftFragment extends BaseFragment implements OnPlayListIt
     public void onEvent(SearchEvent event){
 
     }
+
+    public void onEvent(PlaylistEvent event){
+        Log.d(TAG, "onEvent PlaylistEvent " + event.isAddPlaylist());
+        if(event.isAddPlaylist()){
+            refreshPlayList();
+            refreshPlayListsItems();
+            playListAdapter.notifyDataSetChanged();
+        }
+    }
+
+    //    @Override
+//    public void onStop() {
+//        super.onStop();
+//        Log.d(TAG, "onStop NavigationLeftFragment");
+//    }
+//
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        Log.d(TAG, "onResume NavigationLeftFragment");
+//    }
+//
+//    @Override
+//    public void onDestroy() {
+//        super.onDestroy();
+//        Log.d(TAG, "onDestroy NavigationLeftFragment");
+//    }
+//
+//    @Override
+//    public void onDetach() {
+//        super.onDetach();
+//        Log.d(TAG, "onDetach NavigationLeftFragment");
+//    }
+//
+//    @Override
+//    public void onDestroyView() {
+//        super.onDestroyView();
+//        Log.d(TAG, "onDestroyView NavigationLeftFragment");
+//    }
+//
+//    @Override
+//    public void onPause() {
+//        super.onPause();
+//        Log.d(TAG, "onPause NavigationLeftFragment");
+//    }
 }

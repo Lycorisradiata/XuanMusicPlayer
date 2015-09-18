@@ -1,9 +1,7 @@
 package com.jw.cool.xuanmusicplayer.fragments;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -11,15 +9,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.jw.cool.xuanmusicplayer.PlayActivity;
 import com.jw.cool.xuanmusicplayer.adapter.DividerItemDecoration;
-import com.jw.cool.xuanmusicplayer.adapter.OnPlayListItemListener;
 import com.jw.cool.xuanmusicplayer.adapter.OnSongListItemClickListener;
-import com.jw.cool.xuanmusicplayer.PlaylistActivity;
 import com.jw.cool.xuanmusicplayer.R;
 import com.jw.cool.xuanmusicplayer.adapter.SongListPlayListAdapter;
 import com.jw.cool.xuanmusicplayer.coreservice.MediaInfo;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
-import com.jw.cool.xuanmusicplayer.coreservice.PlayList;
+import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
 
 import java.util.ArrayList;
@@ -98,16 +95,17 @@ public class PlayListSongsFragment extends BaseFragment
 
     @Override
     public void onSongListItemClick(View view, int position) {
-//        toPlaylistActivity(position);
-//        textView.setText(String.valueOf(position));
-//        Intent intent = new Intent(getContext(), SlidingPaneLayoutActivity.class);
-//        PlayList item = playLists.get(position);
-//        Bundle bundle = new Bundle();
-//        bundle.putLong("id", item.getId());
-//        bundle.putString("name", item.getName());
-//        intent.putExtras(bundle);
-//
-//        startActivity(intent);
+        Intent intent = new Intent();
+        intent.setAction(MusicService.ACTION_PLAY);
+        MediaInfo item = songList.get(position);
+        MusicRetriever.getInstance().setIsPlaylistMode(true);
+        MusicRetriever.getInstance().setCurrentPos(item);
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("MediaInfo", item);
+        intent.putExtras(bundle);
+
+        getActivity().startService(intent);
+        getActivity().startActivity(new Intent(getActivity(), PlayActivity.class));
         Log.d(TAG, "onSongListItemClick ");
     }
 
@@ -118,7 +116,14 @@ public class PlayListSongsFragment extends BaseFragment
 
     @Override
     public void onSongListDeleteButtonClick(View view, int position) {
+        long audioId = songList.get(position).getId();
+        adapterSongList.notifyItemRemoved(position);
+        songList.remove(position);
+        itemsNameSongList.remove(position);
+        adapterSongList.notifyItemRangeChanged(position, adapterSongList.getItemCount());
 
+        Log.d(TAG, "onSongListDeleteButtonClick position " + position);
+        MusicRetriever.getInstance().deletePlayListSong(playListId, audioId);
     }
 
     public static long getPlayListId() {
