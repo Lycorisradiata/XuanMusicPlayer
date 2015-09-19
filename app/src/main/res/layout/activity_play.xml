@@ -91,13 +91,14 @@
                 android:background="@drawable/btn_ff"
                 android:layout_weight="1"/>
         </LinearLayout>
-        <ImageView
-            android:id="@+id/image"
+        <com.jw.cool.xuanmusicplayer.lrc.LrcView
+            android:id="@+id/lrc_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/operate_bars"
             android:layout_below="@id/singer_album"
             android:padding="10dp"
-            android:background="@drawable/nuuneoi"/>
+            android:background="@drawable/nuuneoi"
+            android:textSize="20sp"/>
 
     </RelativeLayout>

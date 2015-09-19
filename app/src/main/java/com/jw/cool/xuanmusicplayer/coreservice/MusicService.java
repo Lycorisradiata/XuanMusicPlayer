@@ -222,7 +222,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         mDummyAlbumArt = BitmapFactory.decodeResource(getResources(), R.drawable.dummy_album_art);
 
         mMediaButtonReceiverComponent = new ComponentName(this, MusicIntentReceiver.class);
-        timer.schedule(timerTask, 0, 1000);
+        timer.schedule(timerTask, 0, 100);
     }
 
 

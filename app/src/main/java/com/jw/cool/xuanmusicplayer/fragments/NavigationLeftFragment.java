@@ -1,19 +1,23 @@
 package com.jw.cool.xuanmusicplayer.fragments;
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.jw.cool.xuanmusicplayer.R;
+import com.jw.cool.xuanmusicplayer.adapter.Actor;
 import com.jw.cool.xuanmusicplayer.adapter.DividerItemDecoration;
+import com.jw.cool.xuanmusicplayer.adapter.NavigationItemListener;
+import com.jw.cool.xuanmusicplayer.adapter.NavigationMainAdapter;
 import com.jw.cool.xuanmusicplayer.adapter.OnPlayListItemListener;
 import com.jw.cool.xuanmusicplayer.adapter.PlayListAdapter;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
@@ -29,50 +33,27 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
-public class NavigationLeftFragment extends BaseFragment implements OnPlayListItemListener{
+public class NavigationLeftFragment extends BaseFragment
+        implements OnPlayListItemListener, NavigationItemListener {
     private static final String TAG = "NavigationLeftFragment";
-    private TextView mAllSongsTextView;
-    private TextView mPlayListTextView;
     private RecyclerView mPlayListItemsRecyclerView;
     List<PlayList> playList;
     List<String> playListNames;
     PlayListAdapter playListAdapter;
-    private boolean isRetrieverPrepared;
-    private TextView mSettingsTextView;
-    private ListView mPlayListListViewListView;
+//    private boolean isRetrieverPrepared;
+    List<Actor> actors;
+    RecyclerView mRecyclerView;
+    NavigationMainAdapter navigationMainAdapter;
     //Android NestedScrolling 嵌套滑动详解
 //    http://www.race604.com/android-nested-scrolling/
-
-
+//    http://www.sxt.cn/u/9066/blog/6267
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_navigation_left, container, false);
-        mAllSongsTextView = (TextView) view.findViewById(R.id.nav_all_songs);
-        mPlayListTextView = (TextView) view.findViewById(R.id.nav_play_list);
-        mPlayListItemsRecyclerView = (RecyclerView) view.findViewById(R.id.nav_play_list_items);
-        mSettingsTextView = (TextView) view.findViewById(R.id.nav_settings);
-        mAllSongsTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EventBus.getDefault().post(new SwitchFragmentEvent(SongListFragment.class.getName(), null));
-            }
-        });
-
-        mPlayListTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                togglePlayListItems();
-            }
-        });
-        mSettingsTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EventBus.getDefault().post(new SwitchFragmentEvent(SettingsFragment.class.getName(), null));
-            }
-        });
-        initRecyclePlayList();
+        initRecyclePlayList(view);
+        initMainList(view);
         return view;
     }
 
@@ -84,12 +65,36 @@ public class NavigationLeftFragment extends BaseFragment implements OnPlayListIt
         refreshPlayListsItems();
     }
 
-    public void onEvent(RetrieverPreparedEvent event) {
-        Log.d(TAG, "onEvent " + event);
-        isRetrieverPrepared = true;
-        refreshPlayList();
-        refreshPlayListsItems();
-        playListAdapter.notifyDataSetChanged();
+    void initMainList(View v){
+        actors = new ArrayList<>();
+        actors.add(new Actor(getString(R.string.settings), "ic_settings"));
+        actors.add(new Actor(getString(R.string.all_songs), "ic_launcher"));
+        actors.add(new Actor(getString(R.string.play_list), "ic_playlist_pressed"));
+
+        // 拿到RecyclerView
+        mRecyclerView = (RecyclerView) v.findViewById(R.id.nav_main_list);
+        // 设置LinearLayoutManager
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        // 设置ItemAnimator
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        // 设置固定大小
+        mRecyclerView.setHasFixedSize(true);
+        // 初始化自定义的适配器
+        navigationMainAdapter = new NavigationMainAdapter(getContext(), actors, this);
+        // 为mRecyclerView设置适配器
+        mRecyclerView.setAdapter(navigationMainAdapter);
+    }
+
+    @Override
+    public void navigationItemClick(NavigationMainAdapter.ViewHolder holder, int pos) {
+        String name = holder.mTextView.getText().toString();
+        if(name.equals(getString(R.string.settings))){
+            EventBus.getDefault().post(new SwitchFragmentEvent(SettingsFragment.class.getName(), null));
+        }else if(name.equals(getString(R.string.all_songs))){
+            EventBus.getDefault().post(new SwitchFragmentEvent(SongListFragment.class.getName(), null));
+        }else if(name.equals(getString(R.string.play_list))){
+            togglePlayListItems();
+        }
     }
 
     void togglePlayListItems(){
@@ -100,14 +105,12 @@ public class NavigationLeftFragment extends BaseFragment implements OnPlayListIt
         }
     }
 
-    void initRecyclePlayList(){
-//        mPlayListListViewListView.setAdapter(new ArrayAdapter<String>(getContext(),
-//                android.R.layout.simple_list_item_1,
-//                new String[]{"lfasjld", "sdfklj2", "fklskjfljk3"}));
+    void initRecyclePlayList(View view){
+        mPlayListItemsRecyclerView = (RecyclerView) view.findViewById(R.id.nav_play_list_items);
         mPlayListItemsRecyclerView.setHasFixedSize(true);//使RecyclerView保持固定的大小,这样会提高RecyclerView的性能。
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mPlayListItemsRecyclerView.setLayoutManager(layoutManager);
-        mPlayListItemsRecyclerView.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider)));
+//        mPlayListItemsRecyclerView.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider)));
         mPlayListItemsRecyclerView.setItemAnimator(new FadeInLeftAnimator());
         refreshPlayList();
         refreshPlayListsItems();
@@ -158,10 +161,6 @@ public class NavigationLeftFragment extends BaseFragment implements OnPlayListIt
 
     }
 
-    public void onEvent(SearchEvent event){
-
-    }
-
     public void onEvent(PlaylistEvent event){
         Log.d(TAG, "onEvent PlaylistEvent " + event.isAddPlaylist());
         if(event.isAddPlaylist()){
@@ -170,6 +169,19 @@ public class NavigationLeftFragment extends BaseFragment implements OnPlayListIt
             playListAdapter.notifyDataSetChanged();
         }
     }
+
+    public void onEvent(SearchEvent event){
+
+    }
+    //    public void onEvent(RetrieverPreparedEvent event) {
+//        Log.d(TAG, "onEvent " + event);
+//        isRetrieverPrepared = true;
+//        refreshPlayList();
+//        refreshPlayListsItems();
+//        playListAdapter.notifyDataSetChanged();
+//    }
+
+
 
     //    @Override
 //    public void onStop() {

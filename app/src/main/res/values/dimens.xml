@@ -14,4 +14,5 @@
     <dimen name="nav_header_text_margin_left">16dp</dimen>
 
     <dimen name="nav_main_text_height">60dp</dimen>
+    <dimen name="nav_main_list_height">190dp</dimen>
 </resources>
