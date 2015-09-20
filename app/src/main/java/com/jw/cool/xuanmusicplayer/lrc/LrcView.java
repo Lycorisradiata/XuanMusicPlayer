@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import com.jw.cool.xuanmusicplayer.R;
 
@@ -19,12 +20,13 @@ import com.jw.cool.xuanmusicplayer.R;
  *
  */
 public class LrcView extends android.widget.TextView {
-	private float width;		//歌词视图宽度
+    private static final String TAG = "LrcView";
+    private float width;		//歌词视图宽度
 	private float height;		//歌词视图高度
 	private Paint currentPaint;	//当前画笔对象
 	private Paint notCurrentPaint;	//非当前画笔对象
 	private float textHeight = 82;	//文本高度
-	private float textSize = 72;		//文本大小
+//	private float textSize = 72;		//文本大小
 	private int index = 0;		//list集合下标
 	private int duration;
 	private int focusColor;
@@ -35,22 +37,27 @@ public class LrcView extends android.widget.TextView {
 	private boolean isIndexUseFirstTime;
 	private int twoIndexTimeInterval;
 	private int currentIndexTime;
+    private boolean hasInit;//用此区分index = 0 时，索引是否更新过
 	
 	private List<LrcContent> lrcList = new ArrayList<LrcContent>();
 	
 	public void setLrcList(List<LrcContent> lrcList) {
 		this.lrcList = lrcList;
 		index = 0;
+        hasInit = false;
 	}
 
 	public LrcView(Context context) {
-		super(context);
-		init();
+		this(context, null);
+//        Log.d(TAG, "LrcView context");
+//        init();
 	}
 	public LrcView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		focusColor = Color.parseColor("#D2FBFB1D");
+//        Log.d(TAG, "LrcView context attrs defStyle");
+        focusColor = Color.parseColor("#D2FBFB1D");
 		noFocusColor = Color.parseColor("#8cffffff");
+//        Log.d(TAG, "LrcView focusColor " + focusColor + " noFocusColor　" +noFocusColor);
 
 		TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.LrcView);
 		final int count = typedArray.getIndexCount();
@@ -75,8 +82,9 @@ public class LrcView extends android.widget.TextView {
 	}
 
 	public LrcView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-		init();
+		this(context, attrs, 0);
+//        Log.d(TAG, "LrcView context attrs");
+//		init();
 	}
 
 	private void init() {
@@ -99,6 +107,8 @@ public class LrcView extends android.widget.TextView {
 		notCurrentPaint.setColor(noFocusColor);
 		notCurrentPaint.setTextSize(getTextSize());
 		notCurrentPaint.setTypeface(getTypeface());
+        textHeight = getTextSize() + verticalSpace;
+//        Log.d(TAG, "LrcView " + focusColor + " " + noFocusColor + " " + textHeight);
 
 	}
 	
@@ -123,21 +133,29 @@ public class LrcView extends android.widget.TextView {
 		
 		try {
 			setText("");
-			canvas.drawText(lrcList.get(index).getLrcStr(), width / 2, height / 2, currentPaint);
-			
-			float tempY = height / 2;
+            float tempY = height / 2;
+            float tempX = width / 2;
+            if(moveDistance > 0 && moveDistance <= textHeight){
+                tempY -= moveDistance;
+            }
+            float cloneY = tempY;
+
+//            Log.d(TAG, "onDraw " + moveDistance + " " + tempY + " " + tempX);
+
+			canvas.drawText(lrcList.get(index).getLrcStr(), tempX, tempY, currentPaint);
+
 			//画出本句之前的句子
 			for(int i = index - 1; i >= 0 && i > index - 3; i--) {
 				//向上推移
 				tempY = tempY - textHeight;
 				canvas.drawText(lrcList.get(i).getLrcStr(), width / 2, tempY, notCurrentPaint);
 			}
-			tempY = height / 2;
+			tempY = cloneY;
 			//画出本句之后的句子
 			for(int i = index + 1; i < lrcList.size() && i < index + 3 ; i++) {
 				//往下推移
 				tempY = tempY + textHeight;
-				canvas.drawText(lrcList.get(i).getLrcStr(), width / 2, tempY, notCurrentPaint);
+				canvas.drawText(lrcList.get(i).getLrcStr(), tempX, tempY, notCurrentPaint);
 			} 
 		} catch (Exception e) {
 			setText("...木有歌词文件，赶紧去下载...");
@@ -163,6 +181,10 @@ public class LrcView extends android.widget.TextView {
 		int lastIndex = index;
 		index = lrcIndex();
 		isIndexUseFirstTime = lastIndex == index ? true : false;
+        if(!hasInit){
+            hasInit = true;
+            isIndexUseFirstTime = true;
+        }
 
 		//如果索引变化了，则重新计算到下一个索引的时间间隔
 		if(isIndexUseFirstTime){
@@ -177,11 +199,9 @@ public class LrcView extends android.widget.TextView {
 		//这次刷新需要移动的距离
 		if(twoIndexTimeInterval > 0){
 			//textHeight + verticalSpace 表示两行歌词之间的高度差
-			moveDistance = (textHeight + verticalSpace) / twoIndexTimeInterval
-					       * (currentTime - currentIndexTime);
-
-		}
-
+			moveDistance = textHeight / twoIndexTimeInterval * (currentTime - currentIndexTime);
+//            Log.d(TAG, "updateIndex moveDistance " + moveDistance + " "+ currentTime + " " + currentIndexTime);
+        }
 	}
 
 

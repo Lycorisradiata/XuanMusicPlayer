@@ -79,6 +79,7 @@ public class MusicRetriever {
         if(context != null && instance == null){
             synchronized (MusicRetriever.class){
                 instance = new MusicRetriever(context);
+//                instance.setPlayMode();
             }
         }
     }
@@ -451,6 +452,7 @@ public class MusicRetriever {
     }
 
     public  void setPlayMode(int mode){
+        Log.d(TAG, "setPlayMode mode " + mode);
         playMode = mode;
     }
 

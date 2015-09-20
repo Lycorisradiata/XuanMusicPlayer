@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--android:entries 显示的内容，android:entryValues 偏好文件中保存的值
+    android:persistent 是否要将preference存储到shared preferences中去, 默认为true，即持久保存-->
+    <PreferenceCategory android:title="@string/play_mode">
+        <ListPreference
+            android:dialogTitle="@string/play_mode"
+            android:entries="@array/play_mode_list"
+            android:entryValues="@array/play_mode_list_values"
+            android:key="play_mode"
+            android:title="play_mode"
+            android:summary="@string/all_recycle"/>
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="First category">
         <Preference
             android:persistent="false"
@@ -35,7 +47,7 @@
             android:entries="@array/pref_list_entries"
             android:entryValues="@array/pref_list_values"
             android:key="pref_syncConnectionType"
-            android:persistent="false"
+            android:persistent="true"
             android:title="ListPreference" />
     </PreferenceCategory>
     <PreferenceCategory

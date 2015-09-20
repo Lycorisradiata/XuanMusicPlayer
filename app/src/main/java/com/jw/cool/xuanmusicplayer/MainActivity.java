@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         initInstances();
         Intent intent = new Intent(MainActivity.this,MusicService.class);
         startService(intent);
+
 //        Palette palette;
     }
 

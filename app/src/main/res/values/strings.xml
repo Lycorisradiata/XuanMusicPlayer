@@ -56,4 +56,25 @@
     <string name="delete">删除</string>
     <string name="create">新建</string>
 
+    <string name="all_recycle">循环全部</string>
+    <string name="play_mode">循环模式</string>
+    <string-array name="play_mode_list">
+        <item>循环全部</item>
+        <item>单曲循环</item>
+        <item>随机播放</item>
+        <item>顺序播放</item>
+        <item>当前歌曲</item>
+    </string-array>
+    <string-array name="play_mode_list_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+
+
+
+
+
 </resources>

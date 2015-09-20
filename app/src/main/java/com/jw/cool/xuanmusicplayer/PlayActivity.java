@@ -119,7 +119,7 @@ public class PlayActivity extends Activity implements View.OnClickListener{
         List<LrcContent> list =  lrcProcess.getLrcList();
         lrcView.setDuration(duration);
         lrcView.setLrcList(list);
-        lrcView.setAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_in));
+//        lrcView.setAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_in));
     }
 
     void refreshLrcView(int currentTime){
