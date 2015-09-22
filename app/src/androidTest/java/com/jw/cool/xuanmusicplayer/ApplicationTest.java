@@ -1,4 +1,4 @@
-package com.jw.cool.xuanmusicplauer;
+package com.jw.cool.xuanmusicplayer;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

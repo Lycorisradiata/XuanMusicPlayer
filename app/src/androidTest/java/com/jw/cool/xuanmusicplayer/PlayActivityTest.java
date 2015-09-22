@@ -1,4 +1,4 @@
-package com.jw.cool.xuanmusicplauer;
+package com.jw.cool.xuanmusicplayer;
 
 /**
  * Created by admin on 2015/9/21.
