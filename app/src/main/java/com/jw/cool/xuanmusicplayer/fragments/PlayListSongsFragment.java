@@ -2,6 +2,7 @@ package com.jw.cool.xuanmusicplayer.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -26,13 +27,16 @@ import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
 public class PlayListSongsFragment extends BaseFragment
         implements OnSongListItemClickListener{
-    public final static String PLAY_LIST_ID = "PLAY_LIST_ID";
-    private static final String TAG = "PlayListSongsFragment";
+    static final String TAG = "PlayListSongsFragment";
+    static final String PLAY_LIST_ID = "PLAY_LIST_ID";
+
     private static long playListId;
     RecyclerView recyclerSongList ;
     RecyclerView.Adapter adapterSongList;
     List<MediaInfo> songList;
     List<String> itemsNameSongList;
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

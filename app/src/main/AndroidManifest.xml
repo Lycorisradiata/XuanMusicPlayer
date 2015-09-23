@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jw.cool.xuanmusicplayer" >
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
@@ -21,7 +23,9 @@
         </activity>
         <activity android:name=".SettingsActivity" />
 
-        <service android:exported="true" android:name=".coreservice.MusicService">
+        <service
+            android:name=".coreservice.MusicService"
+            android:exported="true" >
             <intent-filter>
                 <action android:name="com.jw.musicplayer.action.TOGGLE_PLAYBACK" />
                 <action android:name="com.jw.musicplayer.action.PLAY" />
@@ -34,11 +38,12 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="com.jw.musicplayer.action.URL" />
+
                 <data android:scheme="http" />
             </intent-filter>
         </service>
 
-        <receiver android:name=".coreservice.MusicIntentReceiver">
+        <receiver android:name=".coreservice.MusicIntentReceiver" >
             <intent-filter>
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>
@@ -46,10 +51,15 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
-        <activity android:name=".PlayActivity">
+
+        <activity android:name=".PlayActivity" >
             <intent-filter>
-                <action android:name="com.jw.musicplayer.action.PlayActivity"/>
+                <action android:name="com.jw.musicplayer.action.PlayActivity" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".LockActivity"
+            android:label="@string/title_activity_lock" >
         </activity>
     </application>
 

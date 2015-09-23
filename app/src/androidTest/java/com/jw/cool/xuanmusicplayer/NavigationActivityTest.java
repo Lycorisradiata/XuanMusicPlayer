@@ -33,7 +33,7 @@ public class NavigationActivityTest extends InstrumentationTestCase{
 //        motionEvent = new MotionEvent.obtain(time1, time2, 0, 960, 128, 0);
         Point point = new Point();
         navigationActivity.getWindowManager().getDefaultDisplay().getSize(point);
-//        Log.d(TAG, "testClick point" + point.x + " " + point.y);
+        Log.d(TAG, "testClick point" + point.x + " " + point.y);
 //        DisplayMetrics metrics = navigationActivity.getResources().getDisplayMetrics();
 //        Log.d(TAG, "testClick density " + metrics.density + " densityDpi" + metrics.densityDpi
 //                + " scaledDensity" + metrics.scaledDensity + " xdpi" + metrics.xdpi + " ydpi"

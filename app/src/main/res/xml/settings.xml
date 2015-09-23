@@ -11,6 +11,16 @@
             android:title="play_mode"
             android:summary="@string/all_recycle"/>
     </PreferenceCategory>
+    <PreferenceCategory>
+        <CheckBoxPreference
+            android:key="setup_pattern_lock"
+            android:title="@string/setup_pattern_lock"
+            android:defaultValue="false"/>
+        <Preference
+            android:key="modify_pattern_lock"
+            android:title="@string/modify_pattern_lock"
+            android:dependency="setup_pattern_lock"/>
+    </PreferenceCategory>
 
     <PreferenceCategory android:title="First category">
         <Preference

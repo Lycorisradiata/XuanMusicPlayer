@@ -1,6 +1,8 @@
 package com.jw.cool.xuanmusicplayer.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
@@ -8,7 +10,9 @@ import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceScreen;
 import android.util.Log;
 
+import com.jw.cool.xuanmusicplayer.LockActivity;
 import com.jw.cool.xuanmusicplayer.R;
+import com.jw.cool.xuanmusicplayer.constant.PatternLockStatus;
 
 /**
  * Created by cao on 2015/9/9.
@@ -17,6 +21,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
     implements Preference.OnPreferenceChangeListener{
     private static final String TAG = "SettingsFragment";
     ListPreference playModeList;
+    CheckBoxPreference setPatternLock;
+    Preference modifyPatternLock;
 
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
@@ -24,9 +30,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
 //        getPreferenceManager().findPreference()
         playModeList = (ListPreference) findPreference("play_mode");
         Log.d(TAG, "onCreatePreferences " + playModeList.getSummary());
-
         playModeList.setSummary(playModeList.getValue());
         playModeList.setOnPreferenceChangeListener(this);
+
+        setPatternLock = (CheckBoxPreference) findPreference("setup_pattern_lock");
+        setPatternLock.setOnPreferenceChangeListener(this);
+
+        modifyPatternLock =  findPreference("modify_pattern_lock");
+
     }
 
     @Override
@@ -39,6 +50,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
         if(preference.getKey() == playModeList.getKey()){
             String values = ((ListPreference) preference).getValue();
             Log.d(TAG, "onPreferenceTreeClick values " + values);
+        }else if(preference.getKey() == modifyPatternLock.getKey()){
+
         }
         return returnValue;
     }
@@ -71,9 +84,38 @@ public class SettingsFragment extends PreferenceFragmentCompat
             Log.d(TAG, "onPreferenceTreeClick values " + values + " " + entry);
 
             playModeList.setSummary((String)o);
+        }else if(preference.getKey() == setPatternLock.getKey()){
+            Intent intent = new Intent();
+            intent.setClass(getContext(), LockActivity.class);
+            int requestCode;
+            if((Boolean)o){
+                requestCode = PatternLockStatus.CLEAR_LOCK;
+            }else{
+                requestCode = PatternLockStatus.SET_LOCK;
+            }
+
+            intent.putExtra(PatternLockStatus.KEY, requestCode);
+            startActivityForResult(intent, requestCode);
         }
 //        return false;
 
         return true;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        boolean isLocked = false;
+        switch (requestCode){
+            case PatternLockStatus.SET_LOCK:
+                isLocked = resultCode == 0;
+                break;
+            case PatternLockStatus.CLEAR_LOCK:
+                isLocked = resultCode != 0;
+                break;
+            default:
+                break;
+        }
+        setPatternLock.setChecked(isLocked);
     }
 }
