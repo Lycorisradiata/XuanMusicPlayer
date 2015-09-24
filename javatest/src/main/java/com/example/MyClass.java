@@ -19,6 +19,6 @@ public class MyClass {
         }
         titles.add("5");
         System.out.println("titles " + titles.size());
-        System.out.println(".gitignore");
+        System.out.println(".gitsdafafignore ");
     }
 }
