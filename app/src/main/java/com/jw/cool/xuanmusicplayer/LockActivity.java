@@ -173,7 +173,7 @@ public class LockActivity extends AppCompatActivity
 
     @Override
     public void onPatternCellAdded(List<PatternView.Cell> list) {
-        Log.d(TAG, "onPatternCellAdded ");
+//        Log.d(TAG, "onPatternCellAdded ");
     }
 
     @Override
@@ -221,9 +221,6 @@ public class LockActivity extends AppCompatActivity
         }
 
         switchLockStatus();
-//        if(switchLockStatus() == 0){
-//            finish();
-//        }
     }
 
     void handleWrongStatus(){
