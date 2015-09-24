@@ -6,6 +6,7 @@
 .DS_Store
 /build
 /captures
+
 =======
 # Built application files
 *.apk
@@ -34,4 +35,8 @@ proguard/
 
 # Log Files
 *.log
+
+#javateset 测试Java代码的模块
+/javateset/*
+
 >>>>>>> 5d150f137f9dc2a73febce36cdc98c05fd332338

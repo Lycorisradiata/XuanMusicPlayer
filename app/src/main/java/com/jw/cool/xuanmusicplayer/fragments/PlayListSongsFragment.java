@@ -28,7 +28,7 @@ import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 public class PlayListSongsFragment extends BaseFragment
         implements OnSongListItemClickListener{
     static final String TAG = "PlayListSongsFragment";
-    static final String PLAY_LIST_ID = "PLAY_LIST_ID";
+    public static final String PLAY_LIST_ID = "PLAY_LIST_ID";
 
     private static long playListId;
     RecyclerView recyclerSongList ;

@@ -15,4 +15,8 @@
 
     <dimen name="nav_main_text_height">60dp</dimen>
     <dimen name="nav_main_list_height">190dp</dimen>
+    <dimen name="setup_patter_lock">60dp</dimen>
+    <dimen name="setup_patter_lock_text_size">20sp</dimen>
+    <dimen name="redraw_and_confirm">60dp</dimen>
+    <dimen name="redraw_and_confirm_text_size">20sp</dimen>
 </resources>

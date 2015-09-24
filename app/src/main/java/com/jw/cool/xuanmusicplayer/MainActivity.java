@@ -1,6 +1,7 @@
 package com.jw.cool.xuanmusicplayer;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -26,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.PopupWindow;
 
+import com.jw.cool.xuanmusicplayer.constant.PatternLockStatus;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
 import com.jw.cool.xuanmusicplayer.fragments.BaseFragment;
@@ -34,6 +36,8 @@ import com.jw.cool.xuanmusicplayer.popupWindows.PopWin;
 import com.jw.cool.xuanmusicplayer.utils.HandlerScreen;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
@@ -52,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     TabLayout tabLayout;
     ViewPager viewPager;
     ArrayList<Fragment> fragmentsList;
-    ArrayList<String> titles;
+    List<String> titles;
     SearchView mSearchView;
     String mSearchText;
     private int currIndex;
@@ -75,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
 //        Palette palette;
     }
+
 
     @Override
     protected void onStart() {
@@ -141,11 +146,12 @@ public class MainActivity extends AppCompatActivity {
 
         rootLayout = (CoordinatorLayout) findViewById(R.id.rootLayout);
         
-        titles = new ArrayList<>();
+//        titles = new ArrayList<>();
         String[] tabTitles = getResources().getStringArray(R.array.tabTitles);
-        for (String tabTitle : tabTitles) {
-            titles.add(tabTitle);
-        }
+//        for (String tabTitle : tabTitles) {
+//            titles.add(tabTitle);
+//        }
+        titles = Arrays.asList(tabTitles);//如此转化过来的list是不能执行添加删除操作的
 
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         fragmentsList = new ArrayList<>();

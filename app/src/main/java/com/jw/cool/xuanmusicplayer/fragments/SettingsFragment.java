@@ -15,7 +15,7 @@ import com.jw.cool.xuanmusicplayer.R;
 import com.jw.cool.xuanmusicplayer.constant.PatternLockStatus;
 
 /**
- * Created by cao on 2015/9/9.
+ * Created by ljw on 2015/9/9.
  */
 public class SettingsFragment extends PreferenceFragmentCompat
     implements Preference.OnPreferenceChangeListener{
@@ -47,11 +47,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
         boolean returnValue = super.onPreferenceTreeClick(preference);
         Log.d(TAG, "onPreferenceTreeClick " + preference + "    returnValue " + returnValue);
         Log.d(TAG, "onPreferenceTreeClick " + preference.getKey() + " " + playModeList.getKey());
-        if(preference.getKey() == playModeList.getKey()){
+        if(playModeList.getKey().equals(preference.getKey())){
             String values = ((ListPreference) preference).getValue();
             Log.d(TAG, "onPreferenceTreeClick values " + values);
-        }else if(preference.getKey() == modifyPatternLock.getKey()){
-
+        }else if(modifyPatternLock.getKey().equals(preference.getKey())){
+            Intent intent = new Intent();
+            intent.setClass(getContext(), LockActivity.class);
+            intent.putExtra(PatternLockStatus.KEY, PatternLockStatus.MODIFY_LOCK);
+            startActivityForResult(intent, PatternLockStatus.MODIFY_LOCK);
         }
         return returnValue;
     }
@@ -60,7 +63,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
     public void onDisplayPreferenceDialog(Preference preference) {
         super.onDisplayPreferenceDialog(preference);
         Log.d(TAG, "onDisplayPreferenceDialog " + preference);
-        if(preference.getKey() == playModeList.getKey()){
+        if(playModeList.getKey().equals(preference.getKey())){
             String values = ((ListPreference) preference).getValue();
             Log.d(TAG, "onPreferenceTreeClick values " + values);
         }
@@ -78,17 +81,19 @@ public class SettingsFragment extends PreferenceFragmentCompat
     public boolean onPreferenceChange(Preference preference, Object o) {
         Log.d(TAG, "onPreferenceChange preference " + preference);
         Log.d(TAG, "onPreferenceChange " + o);
-        if(preference.getKey() == playModeList.getKey()){
+        if(playModeList.getKey().equals(preference.getKey())){
             String values = ((ListPreference) preference).getValue();
             String entry = (String) ((ListPreference)preference).getEntry();
             Log.d(TAG, "onPreferenceTreeClick values " + values + " " + entry);
 
             playModeList.setSummary((String)o);
-        }else if(preference.getKey() == setPatternLock.getKey()){
+            return true;
+        }else if(setPatternLock.getKey().equals(preference.getKey())){
+            Log.d(TAG, "onPreferenceChange isLocked" + o);
             Intent intent = new Intent();
             intent.setClass(getContext(), LockActivity.class);
             int requestCode;
-            if((Boolean)o){
+            if(setPatternLock.isChecked()){
                 requestCode = PatternLockStatus.CLEAR_LOCK;
             }else{
                 requestCode = PatternLockStatus.SET_LOCK;
@@ -97,25 +102,26 @@ public class SettingsFragment extends PreferenceFragmentCompat
             intent.putExtra(PatternLockStatus.KEY, requestCode);
             startActivityForResult(intent, requestCode);
         }
-//        return false;
-
-        return true;
+        return false;
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult requestCode" + requestCode + " resultCode"+ resultCode);
         boolean isLocked = false;
         switch (requestCode){
             case PatternLockStatus.SET_LOCK:
                 isLocked = resultCode == 0;
+                setPatternLock.setChecked(isLocked);
                 break;
             case PatternLockStatus.CLEAR_LOCK:
                 isLocked = resultCode != 0;
+                setPatternLock.setChecked(isLocked);
                 break;
             default:
                 break;
         }
-        setPatternLock.setChecked(isLocked);
+        Log.d(TAG, "onActivityResult isLocked " + isLocked);
     }
 }

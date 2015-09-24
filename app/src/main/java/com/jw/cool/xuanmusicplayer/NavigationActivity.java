@@ -1,13 +1,16 @@
 package com.jw.cool.xuanmusicplayer;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.jw.cool.xuanmusicplayer.constant.PatternLockStatus;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
 import com.jw.cool.xuanmusicplayer.events.SlidingPaneLayoutEvent;
@@ -22,7 +25,7 @@ import com.jw.cool.xuanmusicplayer.utils.HandlerScreen;
 import de.greenrobot.event.EventBus;
 
 /**
- * Created by Administrator on 15-9-16.
+ * Created by ljw on 15-9-16.
  */
 public class NavigationActivity extends AppCompatActivity{
     private static final String TAG = "NavigationActivity";
@@ -50,7 +53,36 @@ public class NavigationActivity extends AppCompatActivity{
         collapsingToolbarLayout.setTitle("PlayList");
         spl = (SlidingPaneLayout) findViewById(R.id.sliding_pane_layout_2);
         spl.openPane();
+        handlePatterLock();
 //        spl.setParallaxDistance(200);
+    }
+
+    void handlePatterLock(){
+        SharedPreferences sharedPreferences =
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        boolean isLocked = sharedPreferences.getBoolean("setup_pattern_lock", false);
+        Log.d(TAG, "handlePatterLock isLocked " + isLocked);
+        if (isLocked){
+            Intent intent = new Intent();
+            intent.setClass(getApplicationContext(), LockActivity.class);
+            int requestCode = PatternLockStatus.UNLOCK;
+            intent.putExtra(PatternLockStatus.KEY, requestCode);
+            startActivityForResult(intent, requestCode);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult requestCode "+ requestCode + " resultCode "+ resultCode);
+        if(requestCode == PatternLockStatus.UNLOCK){
+            if(resultCode == 0){
+                Log.d(TAG, "onActivityResult unlock success ");
+            }else{
+                Log.d(TAG, "onActivityResult unlock failed, need finish");
+                finish();
+            }
+        }
     }
 
     @Override
