@@ -18,11 +18,13 @@ import com.jw.cool.xuanmusicplayer.adapter.SongListPlayListAdapter;
 import com.jw.cool.xuanmusicplayer.coreservice.MediaInfo;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
+import com.jw.cool.xuanmusicplayer.events.PopupWindowEvent;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
 import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
 public class PlayListSongsFragment extends BaseFragment
@@ -81,6 +83,7 @@ public class PlayListSongsFragment extends BaseFragment
         super.onStart();
         Log.d(TAG, "onStart playListId " + playListId);
         updateSongList();
+        EventBus.getDefault().post(new PopupWindowEvent(true, 0));
     }
 
     void refreshItemsNameSongList(){

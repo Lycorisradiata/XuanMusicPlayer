@@ -45,7 +45,7 @@ public class MusicRetriever {
     private  Context context;
     ContentResolver contentResolver;
     List<MediaInfo> allItems;
-    int currentPos;
+    int currentPos = -1;
     int playMode;
     boolean isPlaylistMode;
     List<MediaInfo> playlistItems;

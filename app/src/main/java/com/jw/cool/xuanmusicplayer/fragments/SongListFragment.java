@@ -1,18 +1,23 @@
 package com.jw.cool.xuanmusicplayer.fragments;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnScrollChangeListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,6 +34,7 @@ import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplayer.coreservice.PlayList;
 import com.jw.cool.xuanmusicplayer.coreservice.PlaylistItem;
 import com.jw.cool.xuanmusicplayer.events.PlaylistEvent;
+import com.jw.cool.xuanmusicplayer.events.PopupWindowEvent;
 import com.jw.cool.xuanmusicplayer.events.RetrieverPreparedEvent;
 import com.jw.cool.xuanmusicplayer.events.SearchEvent;
 import com.jw.cool.xuanmusicplayer.events.SlidingPaneLayoutEvent;
@@ -39,6 +45,8 @@ import com.jw.cool.xuanmusicplayer.utils.HandlerScreen;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import de.greenrobot.event.EventBus;
 import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
@@ -54,7 +62,6 @@ public class SongListFragment extends BaseFragment
     boolean isNeedShowSelectBox;
     PopupWindow selectPopupWindow;
     PopupWindow operatePopupWindow;
-    PopupWindow playPopupWindow;
     boolean[] selectedStatus;
     int selectedItemsCount;
     List<PlayList> playLists;
@@ -81,15 +88,6 @@ public class SongListFragment extends BaseFragment
             operatePopupWindow = PopWin.getOperateWindow(getContext(), this);
         }
         operatePopupWindow.showAtLocation(recyclerView, Gravity.BOTTOM, 0, 0);
-    }
-
-//    PopupWindow playPopupWindow;
-    void showPlayPopupWindow(){
-        if (playPopupWindow == null) {
-            playPopupWindow = PopWin.getPlayWindow(getActivity().getApplicationContext(), null);
-        }
-
-        playPopupWindow.showAtLocation(getView(), Gravity.BOTTOM, 0, 0);
     }
 
     void selectAll(){
@@ -142,13 +140,20 @@ public class SongListFragment extends BaseFragment
     }
 
     private RecyclerView recyclerView;
-
+    FloatingActionButton toStartButton;
+    FloatingActionButton toEndButton;
+    LinearLayoutManager layoutManager;
+    int diffY = 0;
+    long showTime;
+    //停止滑动后toStartButton， toEndButton持续显示的时间，超过将会自动隐藏
+    final long displayDurationMillis = 2000;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        recyclerView = (RecyclerView) inflater.inflate(R.layout.fragment_song_list, container, false);
+        Log.d(TAG, "onCreateView ");
+        View view = inflater.inflate(R.layout.fragment_song_list, container, false);
+        recyclerView = (RecyclerView)view.findViewById(R.id.song_list_recycle_view);
         recyclerView.setHasFixedSize(true);//使RecyclerView保持固定的大小,这样会提高RecyclerView的性能。
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider)));
         recyclerView.setItemAnimator(new FadeInLeftAnimator());
@@ -157,8 +162,93 @@ public class SongListFragment extends BaseFragment
         Log.d(TAG, "onCreateView itemsName " + itemsName + " " + itemsName.size());
         adapter = new SongListAdapter(getContext(), itemsName, this);
         recyclerView.setAdapter(adapter);
+        toStartButton = (FloatingActionButton) view.findViewById(R.id.to_star);
+        toStartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //滑动recyclerView至开始元素位置
+                Log.d(TAG, "onClick toStartButton ");
+                toStartButton.hide();
+                layoutManager.scrollToPosition(0);
+            }
+        });
+        toStartButton.hide();
 
-        return recyclerView;
+        toEndButton = (FloatingActionButton) view.findViewById(R.id.to_end);
+        toEndButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //滑动recyclerView至结束元素位置
+                Log.d(TAG, "onClick toEndButton ");
+                toEndButton.hide();
+                Log.d(TAG, "onClick recyclerView.Count()" + recyclerView.getChildCount());
+                Log.d(TAG, "onClick layoutManager.Count()" + layoutManager.getChildCount());
+                layoutManager.scrollToPosition(adapter.getItemCount() - 1);
+            }
+        });
+        toEndButton.hide();
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy > 0){
+                    //隐藏PlayPopupWindow
+                    EventBus.getDefault().post(new PopupWindowEvent(false, 0));
+
+                    showFloatingActionButton(false, true);
+                    showTime = System.currentTimeMillis();
+                }else if(dy < 0){
+                    showFloatingActionButton(true, false);
+                    showTime = System.currentTimeMillis();
+                }else{
+                }
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if(newState == RecyclerView.SCROLL_STATE_IDLE){
+                    if(toEndButton.isShown()){
+                        toEndButton.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(System.currentTimeMillis() - showTime >= displayDurationMillis){
+                                    toEndButton.hide();
+                                    EventBus.getDefault().post(new PopupWindowEvent(true, 0));
+                                }
+                            }
+                        }, displayDurationMillis);
+                    }else if(toStartButton.isShown()){
+                        toStartButton.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(System.currentTimeMillis() - showTime >= displayDurationMillis){
+                                    toStartButton.hide();
+                                }
+                            }
+                        }, displayDurationMillis);
+                    }
+                }
+            }
+        });
+
+
+        return view;
+    }
+
+    void showFloatingActionButton(boolean toStart, boolean toEnd){
+        if(toStart){
+            toStartButton.show();
+        }else{
+            toStartButton.hide();
+        }
+
+        if(toEnd){
+            toEndButton.show();
+        }else{
+            toEndButton.hide();
+        }
     }
 
     public void onEvent(SearchEvent event) {
@@ -208,15 +298,23 @@ public class SongListFragment extends BaseFragment
         Log.d(TAG, "onStart test");
         itemList = MusicRetriever.getInstance().getItems();
         refreshItemsName();
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Log.d(TAG, "run post PopupWindowEvent ");
+                EventBus.getDefault().post(new PopupWindowEvent(true, 0));
+            }
+        }, 1000);
+
 //        showPlayPopupWindow();
     }
 
     void refreshItemsName(){
-        Log.d(TAG, "refreshItemsName isRetrieverPrepared" + isRetrieverPrepared);
+//        Log.d(TAG, "refreshItemsName isRetrieverPrepared" + isRetrieverPrepared);
         if(itemsName == null){
             itemsName = new ArrayList<>();
         }else{
-            Log.d(TAG, "refreshItemsName " + itemList.size());
+//            Log.d(TAG, "refreshItemsName " + itemList.size());
             itemsName.clear();
         }
 

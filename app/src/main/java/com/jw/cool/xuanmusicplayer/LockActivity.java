@@ -221,6 +221,7 @@ public class LockActivity extends AppCompatActivity
         }
 
         switchLockStatus();
+        Log.d(TAG, "onPatternDetected exit");
     }
 
     void handleWrongStatus(){

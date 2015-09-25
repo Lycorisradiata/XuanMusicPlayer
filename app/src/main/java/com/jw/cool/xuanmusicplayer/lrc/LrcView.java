@@ -177,6 +177,9 @@ public class LrcView extends android.widget.TextView {
 	}
 
 	public void updateIndex(int time){
+		if(lrcList.size() <= 0){
+			return;
+		}
 		currentTime = time;
 		int lastIndex = index;
 		index = lrcIndex();
@@ -209,7 +212,7 @@ public class LrcView extends android.widget.TextView {
 	 * 根据时间获取歌词显示的索引值
 	 * @return
 	 */
-	public int lrcIndex() {
+	private int lrcIndex() {
 		if(currentTime < duration) {
 			for (int i = 0; i < lrcList.size(); i++) {
 				if (i < lrcList.size() - 1) {

@@ -98,7 +98,7 @@
             android:layout_above="@id/operate_bars"
             android:layout_below="@id/singer_album"
             android:padding="10dp"
-            android:background="@drawable/nuuneoi"
+            android:background="@drawable/ic_launcher"
             android:textSize="20sp"/>
 
     </RelativeLayout>
