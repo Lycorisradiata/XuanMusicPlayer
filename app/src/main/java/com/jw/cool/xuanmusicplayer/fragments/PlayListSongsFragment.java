@@ -23,6 +23,8 @@ import com.jw.cool.xuanmusicplayer.events.SearchEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import de.greenrobot.event.EventBus;
 import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
@@ -83,7 +85,13 @@ public class PlayListSongsFragment extends BaseFragment
         super.onStart();
         Log.d(TAG, "onStart playListId " + playListId);
         updateSongList();
-        EventBus.getDefault().post(new PopupWindowEvent(true, 0));
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Log.d(TAG, "run post PopupWindowEvent ");
+                EventBus.getDefault().post(new PopupWindowEvent(true, 0));
+            }
+        }, 500);
     }
 
     void refreshItemsNameSongList(){

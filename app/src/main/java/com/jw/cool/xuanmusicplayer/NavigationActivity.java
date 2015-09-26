@@ -12,11 +12,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.jw.cool.xuanmusicplayer.constant.PatternLockStatus;
+import com.jw.cool.xuanmusicplayer.coreservice.MediaInfo;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicRetriever;
 import com.jw.cool.xuanmusicplayer.coreservice.MusicService;
 import com.jw.cool.xuanmusicplayer.events.PopupWindowEvent;
@@ -45,6 +47,7 @@ public class NavigationActivity extends AppCompatActivity{
     Fragment settingsFragment;
     String currentFragment = "";
     PopupWindow playPopupWindow;
+    View playPopupWindowLayout;
     ImageButton playOrPause;
     TextView songName;
     boolean isPlaying;
@@ -114,20 +117,27 @@ public class NavigationActivity extends AppCompatActivity{
 
         if (playPopupWindow == null) {
             playPopupWindow = PopWin.getPlayWindow(this, null);
-            songName = (TextView) playPopupWindow.getContentView()
-                    .findViewById(R.id.play_popup_text);
+            playPopupWindowLayout = playPopupWindow.getContentView();
+            playPopupWindowLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "onClick playPopupWindowLayout");
+                    startActivity(new Intent(NavigationActivity.this, PlayActivity.class));
+                }
+            });
+            songName = (TextView)playPopupWindowLayout.findViewById(R.id.play_popup_text);
             songName.setText(MusicRetriever.getInstance().getCurrentItem().getDisplayName());
-            playOrPause = (ImageButton) playPopupWindow.getContentView()
+            playOrPause = (ImageButton) playPopupWindowLayout
                     .findViewById(R.id.play_popup_play_or_pause);
             playOrPause.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if(isPlaying){
                         //暂停播放，切换button背景，
-                        playOrPause.setBackgroundResource(R.drawable.btn_pause);
+                        playOrPause.setBackgroundResource(R.drawable.btn_play);
                     }else{
                         //播放指定歌曲，切换button背景，
-                        playOrPause.setBackgroundResource(R.drawable.btn_play);
+                        playOrPause.setBackgroundResource(R.drawable.btn_pause);
                     }
                     isPlaying = !isPlaying;
                     Intent intent = new Intent();
@@ -137,6 +147,15 @@ public class NavigationActivity extends AppCompatActivity{
                 }
             });
         }
+
+        songName.setText(MusicRetriever.getInstance().getCurrentItem().getDisplayName());
+        boolean isReallyPlaying = MusicService.getState() == MusicService.State.Playing;
+        if(isReallyPlaying && !isPlaying){
+            playOrPause.setBackgroundResource(R.drawable.btn_pause);
+        }else if(!isReallyPlaying && isPlaying){
+            playOrPause.setBackgroundResource(R.drawable.btn_play);
+        }
+        isPlaying = isReallyPlaying;
 
         if(!playPopupWindow.isShowing()){
             playPopupWindow.showAtLocation(spl, Gravity.BOTTOM, 0, 0);

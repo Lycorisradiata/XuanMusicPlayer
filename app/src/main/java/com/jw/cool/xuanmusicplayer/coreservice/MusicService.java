@@ -95,7 +95,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     AudioFocusHelper mAudioFocusHelper = null;
 
     // indicates the state our service:
-    enum State {
+    public enum State {
         Retrieving, // the MediaRetriever is retrieving music
         Stopped,    // media player is stopped and not prepared to play
         Preparing,  // media player is preparing...
@@ -105,7 +105,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         Paused      // playback paused (media player ready!)
     }
 
-    State mState = State.Retrieving;
+    static State mState = State.Retrieving;
 
     // if in Retrieving mode, this flag indicates whether we should start playing immediately
     // when we are ready or not.
@@ -728,5 +728,9 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     @Override
     public IBinder onBind(Intent arg0) {
         return null;
+    }
+
+    public static State getState() {
+        return mState;
     }
 }

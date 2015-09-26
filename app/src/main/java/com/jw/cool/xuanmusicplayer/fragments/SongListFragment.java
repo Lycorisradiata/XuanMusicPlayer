@@ -304,7 +304,7 @@ public class SongListFragment extends BaseFragment
                 Log.d(TAG, "run post PopupWindowEvent ");
                 EventBus.getDefault().post(new PopupWindowEvent(true, 0));
             }
-        }, 1000);
+        }, 500);
 
 //        showPlayPopupWindow();
     }

@@ -4,8 +4,6 @@
     <color name="nav_item_text_color">#333</color>
     <color name="song_list_background">#008fff</color>
     <color name="song_list_divider">#9f008fff</color>
-    <drawable name="select_popup_window_background">#80008fff</drawable>
-    <drawable name="select_button_background">#ff6000</drawable>
 
     <color name="primary">#3F51B5</color>
     <color name="primary_dark">#303F9F</color>
@@ -21,4 +19,10 @@
     <color name="nav_sp_left_background">#8000ff80</color>
     <color name="pattern_lock_regular">#00ff80</color>
     <color name="pattern_lock_path">#8000ff80</color>
+    <color name="play_popup_window">#bf000000</color>
+    <color name="play_popup_window_text">#ffffff</color>
+
+    <drawable name="select_popup_window_background">#80008fff</drawable>
+    <drawable name="select_button_background">#ff6000</drawable>
+
 </resources>
