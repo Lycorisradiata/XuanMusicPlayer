@@ -28,9 +28,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
     public void onCreatePreferences(Bundle bundle, String s) {
         addPreferencesFromResource(R.xml.settings);
 //        getPreferenceManager().findPreference()
-        playModeList = (ListPreference) findPreference("play_mode");
+//        playModeList = (ListPreference) findPreference("play_mode");
         Log.d(TAG, "onCreatePreferences " + playModeList.getSummary());
-        playModeList.setSummary(playModeList.getValue());
+        String modeIndexString = getPreferenceManager().getSharedPreferences().getString("play_mode", "0");
+//        Log.d(TAG, "onCreatePreferences play_mode " + modeIndexString);
+        String mode = getResources()
+                .getStringArray(R.array.play_mode_list)[Integer.parseInt(modeIndexString)];
+        playModeList.setSummary(mode);
+//        playModeList.setSummary(playModeList.getValue());
         playModeList.setOnPreferenceChangeListener(this);
 
         setPatternLock = (CheckBoxPreference) findPreference("setup_pattern_lock");
@@ -86,7 +91,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
             String entry = (String) ((ListPreference)preference).getEntry();
             Log.d(TAG, "onPreferenceTreeClick values " + values + " " + entry);
 
-            playModeList.setSummary((String)o);
+            String mode = getResources()
+                            .getStringArray(R.array.play_mode_list)[Integer.parseInt((String)o)];
+            playModeList.setSummary(mode);
             return true;
         }else if(setPatternLock.getKey().equals(preference.getKey())){
             Log.d(TAG, "onPreferenceChange isLocked" + o);

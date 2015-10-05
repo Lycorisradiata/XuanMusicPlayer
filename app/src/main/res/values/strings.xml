@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MusicPlayer</string>
+    <string name="app_name">玄音</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
@@ -59,7 +59,7 @@
     <string name="all_recycle">循环全部</string>
     <string name="play_mode">循环模式</string>
     <string-array name="play_mode_list">
-        <item>循环全部</item>
+        <item>@string/all_recycle</item>
         <item>单曲循环</item>
         <item>随机播放</item>
         <item>顺序播放</item>

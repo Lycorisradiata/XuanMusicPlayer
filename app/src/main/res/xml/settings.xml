@@ -9,7 +9,8 @@
             android:entryValues="@array/play_mode_list_values"
             android:key="play_mode"
             android:title="@string/play_mode"
-            android:summary="@string/all_recycle"/>
+            android:summary="@string/all_recycle"
+            android:defaultValue="0"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/patter_lock_manager">
         <CheckBoxPreference

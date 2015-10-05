@@ -68,7 +68,7 @@ public class NavigationActivity extends AppCompatActivity{
                 songsListFragment).commit();
         currentFragment = SongListFragment.class.getName();
         collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbarLayout);
-        collapsingToolbarLayout.setTitle("PlayList");
+        collapsingToolbarLayout.setTitle(getString(R.string.app_name));
         spl = (SlidingPaneLayout) findViewById(R.id.sliding_pane_layout_2);
         spl.openPane();
         handlePatterLock();
