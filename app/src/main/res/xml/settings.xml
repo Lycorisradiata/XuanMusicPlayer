@@ -8,7 +8,7 @@
             android:entries="@array/play_mode_list"
             android:entryValues="@array/play_mode_list_values"
             android:key="play_mode"
-            android:title="play_mode"
+            android:title="@string/play_mode"
             android:summary="@string/all_recycle"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/patter_lock_manager">

@@ -81,6 +81,7 @@ public class PlayActivity extends Activity implements View.OnClickListener{
         lrcView = (LrcView) findViewById(R.id.lrc_view);
         lrcProcess = new LrcProcess();
         refresh(null);
+
     }
 
     @Override
@@ -88,6 +89,14 @@ public class PlayActivity extends Activity implements View.OnClickListener{
         super.onStart();
         EventBus.getDefault().register(this);
         isNeedRefreshMediaInfo = true;
+//        initPlayImage();
+        playOrPause.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                initPlayImage();
+            }
+        }, 0);
+
     }
 
     @Override
@@ -150,12 +159,40 @@ public class PlayActivity extends Activity implements View.OnClickListener{
             action = MusicService.ACTION_PREVIOUS;
         }else if (view == playOrPause){
             action = MusicService.ACTION_TOGGLE_PLAYBACK;
+            switchPlayStatus();
         }else if (view == next){
             action = MusicService.ACTION_SKIP;
         }
 
         sendAction(action, -1);
     }
+
+    //
+    void switchPlayStatus(){
+        boolean isReallyPlaying = MusicService.getState() == MusicService.State.Playing;
+        if(isReallyPlaying){
+            //正在播放，点击后暂停播放，显示播放图标
+            playOrPause.setBackgroundResource(R.drawable.btn_play );
+        }else if(!isReallyPlaying){
+            //已暂停播放，点击后继续播放，显示暂停图标
+            playOrPause.setBackgroundResource(R.drawable.btn_pause);
+        }
+    }
+
+    void initPlayImage(){
+        boolean isReallyPlaying = MusicService.getState() == MusicService.State.Playing;
+        if(isReallyPlaying){
+            //正在播放，显示暂停图标
+            playOrPause.setBackgroundResource(R.drawable.btn_pause);
+
+        }else if(!isReallyPlaying){
+            //已暂停播放，显示播放图标
+            playOrPause.setBackgroundResource(R.drawable.btn_play );
+
+        }
+    }
+
+
 
     void sendAction(String action, int seekPos){
         if(action != null && action.length() > 0){
